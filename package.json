@@ -15,6 +15,7 @@
     "hapi": "^8.0.0",
     "inert": "^3.2.0",
     "insert": "^1.0.1",
+    "mongoose": "^4.2.6",
     "socket.io": "git://github.com/automattic/socket.io#master"
   }
 }

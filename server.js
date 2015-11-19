@@ -1,6 +1,9 @@
-var Hapi = require('hapi');
-var Good = require('good');
-var users = {}
+var Hapi = require('hapi'),
+    Good = require('good'),
+    mongoose   = require('mongoose'),
+    users = {};
+
+mongoose.connect('mongodb://localhost/chatweb');
 
 var server = new Hapi.Server();
 server.connection({ port: 3000 });
@@ -45,28 +48,29 @@ server.route({
 });
 
 server.route({
-        method: 'GET',
-        path: '/login',
-        handler: function (request, reply) {
-            reply.view('login.html');
-        }
+    method: 'GET',
+    path: '/login',
+    handler: function (request, reply) {
+        reply.view('login.html');
+    }
 });
 
 server.route({
-        method: 'GET',
-        path: '/registration',
-        handler: function (request, reply) {
-            reply.view('registration.html');
-        }
+    method: 'GET',
+    path: '/registration',
+    handler: function (request, reply) {
+        reply.view('registration.html');
+    }
 });
 
 server.route({
-        method: 'GET',
-        path: '/hello',
-        handler: function (request, reply) {
-            reply.view('index.html');
-        }
+    method: 'GET',
+    path: '/hello',
+    handler: function (request, reply) {
+        reply.view('index.html');
+    }
 });
+
 io.sockets.on('connection', function (socket) {
     //when recieving the data from the server, push the same message to client.
     socket.on("clientMsg", function (data) {
