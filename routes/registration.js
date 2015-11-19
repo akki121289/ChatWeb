@@ -38,8 +38,39 @@ module.exports = function(server){
 
 	server.route({
 	    method: 'POST',
+	    path: '/login',
+	    handler: function (request, reply) {
+	    	console.log(request.payload);
+	    	Login.find({username:request.payload.username,password:request.payload.password},function(err, data){
+	    		if(err){
+	    			reply("some thing went wrong");
+	    		}else if(data.length){
+	    			reply(data);
+	    		}else{
+	    			reply("user not found");
+	    		}
+	    	});
+	    }
+	});
+
+	server.route({
+	    method: 'GET',
 	    path: '/registration',
 	    handler: function (request, reply) {
+	        reply.view('registration.html');
+
+	    }
+	});
+
+	server.route({
+	    method: 'POST',
+	    path: '/registration',
+	    handler: function (request, reply) {
+	    	console.log(request.payload);
+	    	if(request.payload.password === request.payload.passwordconfirm){
+	    		delete request.payload.passwordconfirm;
+	    	}
+	    	console.log(request.payload);
 	    	var newUser = new NewUser(request.payload);
 	    	newUser.save(function (error) {
 	            if (error) {
@@ -64,6 +95,7 @@ module.exports = function(server){
 	            	});
 	            }
         	});
-	    }
+	    
+		}
 	});
 }
