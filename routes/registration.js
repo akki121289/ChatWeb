@@ -5,10 +5,16 @@ var NewUser = require('../models/newUser'),
 module.exports = function(server){
 	//@ this route is used for register the institute
 	server.route({
-		path:'/second',
+		path:'/user',
 		method:'GET',
 		handler: function(request, reply){
-			reply("OKKKKKKKKK1");
+			Users.find({status:true},function(error, data){
+				if(error){
+					reply("something went wrong");
+				}else{
+					reply(data);
+				}
+			});
 		}
 	});
 	// @   this route for get the university detail
