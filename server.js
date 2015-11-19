@@ -1,6 +1,7 @@
 var Hapi = require('hapi'),
     Good = require('good'),
     mongoose   = require('mongoose'),
+    routes = require('./routes'),
     users = {};
 
 mongoose.connect('mongodb://localhost/chatweb');
@@ -47,29 +48,9 @@ server.route({
     }
 });
 
-server.route({
-    method: 'GET',
-    path: '/login',
-    handler: function (request, reply) {
-        reply.view('login.html');
-    }
-});
 
-server.route({
-    method: 'GET',
-    path: '/registration',
-    handler: function (request, reply) {
-        reply.view('registration.html');
-    }
-});
 
-server.route({
-    method: 'GET',
-    path: '/hello',
-    handler: function (request, reply) {
-        reply.view('index.html');
-    }
-});
+routes(server);
 
 io.sockets.on('connection', function (socket) {
     //when recieving the data from the server, push the same message to client.
