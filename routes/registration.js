@@ -30,6 +30,7 @@ module.exports = function(server){
 	    method: 'GET',
 	    path: '/userlist',
 	    handler: function (request, reply) {
+	    	console.log(request.session);
 	        reply.view('userlist');
 	    }
 	});
@@ -38,6 +39,7 @@ module.exports = function(server){
 	    method: 'GET',
 	    path: '/login',
 	    handler: function (request, reply) {
+	    	request.session.set('emilId','aa@gmail.com');
 	        reply.view('login');
 
 	    }
@@ -50,7 +52,8 @@ module.exports = function(server){
 	    	Login.find({username:request.payload.username,password:request.payload.password},function(err, data){
 	    		if(err){
 	    			reply("some thing went wrong");
-	    		}else if(data.length){
+	    		}else if(data.length){	    				    							
+					request.session.set('email',request.payload.username);
 	    			reply.redirect('/userlist');
 	    		}else{
 	    			reply("user not found");
@@ -63,6 +66,7 @@ module.exports = function(server){
 	    method: 'GET',
 	    path: '/registration',
 	    handler: function (request, reply) {
+	    	console.log(request.session);
 	        reply.view('registration');
 
 	    }

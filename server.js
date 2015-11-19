@@ -27,6 +27,22 @@ server.register({
         throw err; // something bad happened loading the plugin
     }
 });
+
+
+var options = {
+    storeBlank: true,
+    cookieOptions: {
+        password: 'password',
+        isSecure: false
+    }
+};
+
+server.register({
+    register: require('yar'),
+    options: options
+}, function (err) { });
+
+
 // view handler
 server.views({
     engines: {
