@@ -38,6 +38,20 @@ module.exports = function(server){
 
 	server.route({
 	    method: 'POST',
+	    path: '/login',
+	    handler: function (request, reply) {
+	    	Login.find({username:"nitesh1@gmail.com","password":"nitesh1"},function(err, data){
+	    		if(err){
+
+	    		}else if(data.length){
+	    			
+	    		}
+	    	});
+	    }
+	});
+
+	server.route({
+	    method: 'POST',
 	    path: '/registration',
 	    handler: function (request, reply) {
 	    	var newUser = new NewUser(request.payload);
