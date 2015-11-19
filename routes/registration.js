@@ -3,19 +3,19 @@ var NewUser = require('../models/newUser'),
 
 module.exports = function(server){
 
-	// server.route({
-	//     method: 'GET',
-	//     path: '/',
-	//     handler: function (request, reply) {
-	//         reply.view('index.html');
-	//     }
-	// });
+	server.route({
+	    method: 'GET',
+	    path: '/',
+	    handler: function (request, reply) {
+	        reply.view('index');
+	    }
+	});
 
 	server.route({
 	    method: 'GET',
 	    path: '/userlist',
 	    handler: function (request, reply) {
-	        reply.view('userlist.html');
+	        reply.view('userlist');
 	    }
 	});
 
@@ -23,7 +23,7 @@ module.exports = function(server){
 	    method: 'GET',
 	    path: '/login',
 	    handler: function (request, reply) {
-	        reply.view('login.html');
+	        reply.view('login');
 
 	    }
 	});
@@ -49,7 +49,7 @@ module.exports = function(server){
 	    method: 'GET',
 	    path: '/registration',
 	    handler: function (request, reply) {
-	        reply.view('registration.html');
+	        reply.view('registration');
 
 	    }
 	});

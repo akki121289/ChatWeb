@@ -1,0 +1,29 @@
+doctype html
+html(lang='en')
+  head
+    title Login Form
+    link(rel='stylesheet', href='/public/css/bootstrap.css')
+    script(src='http://code.jquery.com/jquery-1.10.2.js')
+    script(src='/public/js/bootstrap.js')
+  body
+    .container
+      .col-sm-4
+        div
+          b
+            | # of Online Users: 
+            span#online 0
+        ul.list-group
+          li.list-group-item akash
+          li.list-group-item Nitesh
+          li.list-group-item Gaurav
+      .col-sm-7
+        div
+          div(style='width:80%;float:left  ')
+            ul#messages(style='padding-bottom:40px')
+          div(style='width:20%; margin-left: auto;')
+            div(style='width:100%; margin-left: auto;')
+              ol#users
+        div
+          form(action='')
+            input#m.form-control(autocomplete='off', placeholder='Type message')
+            button Send

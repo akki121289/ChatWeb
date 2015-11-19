@@ -29,7 +29,7 @@ server.register({
 // view handler
 server.views({
     engines: {
-        html: require('handlebars')
+        jade: require('jade')
     },
     relativeTo: __dirname,
     path: 'views'
