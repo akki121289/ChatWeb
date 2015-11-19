@@ -3,7 +3,7 @@ var Good = require('good');
 var users = {}
 
 var server = new Hapi.Server();
-server.connection({ port: 3000 });
+server.connection({ port: 3000 ,host : "localhost"});
 var io = require('socket.io')(server.listener);
 // plugins register
 server.register({
