@@ -2,28 +2,20 @@ var NewUser = require('../models/newUser'),
 	Login = require('../models/login');
 
 module.exports = function(server){
-	//@ this route is used for register the institute
-	server.route({
-		path:'/second',
-		method:'GET',
-		handler: function(request, reply){
-			reply("OKKKKKKKKK1");
-		}
-	});
-	// @   this route for get the university detail
-	server.route({
-		path:'/first',
-		method:'GET',
-		handler: function(request, reply){
-			reply("okkkk");
-		}
-	});
+
+	// server.route({
+	//     method: 'GET',
+	//     path: '/',
+	//     handler: function (request, reply) {
+	//         reply.view('index.html');
+	//     }
+	// });
 
 	server.route({
 	    method: 'GET',
-	    path: '/hello',
+	    path: '/userlist',
 	    handler: function (request, reply) {
-	        reply.view('index.html');
+	        reply.view('userlist.html');
 	    }
 	});
 
@@ -45,7 +37,7 @@ module.exports = function(server){
 	    		if(err){
 	    			reply("some thing went wrong");
 	    		}else if(data.length){
-	    			reply(data);
+	    			reply.redirect('/userlist');
 	    		}else{
 	    			reply("user not found");
 	    		}
@@ -87,10 +79,11 @@ module.exports = function(server){
 			                    message: error
 			                });
 	            		}else{
-	            			reply({
-			                    statusCode: 201,
-			                    message: 'User Saved Successfully'
-			                });
+	            			reply.redirect('/login');
+	            			// reply({
+			             //        statusCode: 201,
+			             //        message: 'User Saved Successfully'
+			             //    });
 	            		}
 	            	});
 	            }
