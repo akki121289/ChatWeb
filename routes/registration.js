@@ -1,5 +1,6 @@
 var NewUser = require('../models/newUser'),
-	Login = require('../models/login');
+	Login = require('../models/login'),
+	Users = require('../models/users');
 
 module.exports = function(server){
 	//@ this route is used for register the institute
@@ -15,6 +16,8 @@ module.exports = function(server){
 		path:'/first',
 		method:'GET',
 		handler: function(request, reply){
+			request.session.set('username','ram');
+			console.log(request.session.get("username"));
 			reply("okkkk");
 		}
 	});
@@ -86,10 +89,20 @@ module.exports = function(server){
 			                    message: error
 			                });
 	            		}else{
-	            			reply({
-			                    statusCode: 201,
-			                    message: 'User Saved Successfully'
-			                });
+	            			var user = Users({username:request.payload.email,email:request.payload.email,status:true});
+	            			user.save(function(error){
+	            				if(error){
+	            					reply({
+					                    statusCode: 503,
+					                    message: error
+					                });
+	            				}else{
+	            					reply({
+					                    statusCode: 201,
+					                    message: 'User Saved Successfully'
+					                });
+	            				}
+	            			});
 	            		}
 	            	});
 	            }
