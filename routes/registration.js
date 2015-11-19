@@ -1,5 +1,6 @@
 var NewUser = require('../models/newUser'),
-	Login = require('../models/login');
+	Login = require('../models/login'),
+	Users = require('../models/users');
 
 module.exports = function(server){
 
@@ -9,6 +10,20 @@ module.exports = function(server){
 	    handler: function (request, reply) {
 	        reply.view('index');
 	    }
+	});
+	//@ this route is used for register the institute
+	server.route({
+		path:'/user',
+		method:'GET',
+		handler: function(request, reply){
+			Users.find({status:true},function(error, data){
+				if(error){
+					reply("something went wrong");
+				}else{
+					reply(data);
+				}
+			});
+		}
 	});
 
 	server.route({
@@ -32,7 +47,6 @@ module.exports = function(server){
 	    method: 'POST',
 	    path: '/login',
 	    handler: function (request, reply) {
-	    	console.log(request.payload);
 	    	Login.find({username:request.payload.username,password:request.payload.password},function(err, data){
 	    		if(err){
 	    			reply("some thing went wrong");
@@ -79,16 +93,21 @@ module.exports = function(server){
 			                    message: error
 			                });
 	            		}else{
-	            			reply.redirect('/login');
-	            			// reply({
-			             //        statusCode: 201,
-			             //        message: 'User Saved Successfully'
-			             //    });
+	            			var user = Users({username:request.payload.email,email:request.payload.email,status:true});
+	            			user.save(function(error){
+	            				if(error){
+	            					reply({
+					                    statusCode: 503,
+					                    message: error
+					                });
+	            				}else{
+	            					reply.redirect('/login');
+	            				}
+	            			});
 	            		}
 	            	});
 	            }
         	});
-	    
 		}
 	});
 }

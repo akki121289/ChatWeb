@@ -7,7 +7,8 @@ var Hapi = require('hapi'),
 mongoose.connect('mongodb://localhost/chatweb');
 
 var server = new Hapi.Server();
-server.connection({ port: 3000 });
+server.connection({ port: 3000});
+
 var io = require('socket.io')(server.listener);
 // plugins register
 server.register({
