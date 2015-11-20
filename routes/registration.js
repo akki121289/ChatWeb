@@ -47,10 +47,13 @@ module.exports = function(server){
 	    method: 'POST',
 	    path: '/login',
 	    handler: function (request, reply) {
+	    	console.log(request.session);
 	    	Login.find({username:request.payload.username,password:request.payload.password},function(err, data){
 	    		if(err){
 	    			reply("some thing went wrong");
 	    		}else if(data.length){
+	    			request.session.set("username",request.payload.username);
+	    			console.log(request.session);
 	    			reply.redirect('/userlist');
 	    		}else{
 	    			reply("user not found");

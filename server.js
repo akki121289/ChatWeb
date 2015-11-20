@@ -49,7 +49,17 @@ server.route({
     }
 });
 
-
+var options = {
+    storeBlank: false,
+    cookieOptions: {
+        password: 'password',
+        isSecure: true
+    }
+};
+server.register({
+    register: require('yar'),
+    options: options
+}, function (err) { });
 
 routes(server);
 
