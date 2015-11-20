@@ -1,13 +1,23 @@
 $(document).ready(function(){
-
-      socket = io.connect();
       
-      socket.emit('user join',{name:name});
-      if (name == null) {
-      $("body").html(" please refresh the page and try again ");
-      }
+      var $username = $('#username');
+      var $onlineUser = $('#onlineUser');
+      socket = io.connect();
+      // new user join
+      socket.emit('user join',{username:$username.val()});
+      
+      // broadcast online user list
+
+      socket.on('online user',function(users){
+            var html;
+            for(var i= 0; i<users.length; i++){
+                  html += '<li class="list-group-item">' +users[i]+ '</li>';
+            }
+            $onlineUser.html = html;
+      });
+
       //When send button is clicked on, send the message to server
-      $("#send").click(function () {
+      /*$("#send").click(function () {
       //send to the server with person name and message
       socket.emit("clientMsg", {
       "name": name,
@@ -33,5 +43,6 @@ $(document).ready(function(){
       $("#status").html('');
       }, 3000);
       });
-      });
+      });*/
+      
 });

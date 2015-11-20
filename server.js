@@ -2,7 +2,7 @@ var Hapi = require('hapi'),
     Good = require('good'),
     mongoose   = require('mongoose'),
     routes = require('./routes'),
-    users = {};
+    onlineUsers = {};
 
 mongoose.connect('mongodb://localhost/chatweb');
 
@@ -27,6 +27,22 @@ server.register({
         throw err; // something bad happened loading the plugin
     }
 });
+
+
+var options = {
+    storeBlank: true,
+    cookieOptions: {
+        password: 'password',
+        isSecure: false
+    }
+};
+
+server.register({
+    register: require('yar'),
+    options: options
+}, function (err) { });
+
+
 // view handler
 server.views({
     engines: {
@@ -49,22 +65,10 @@ server.route({
     }
 });
 
-var options = {
-    storeBlank: false,
-    cookieOptions: {
-        password: 'password',
-        isSecure: true
-    }
-};
-server.register({
-    register: require('yar'),
-    options: options
-}, function (err) { });
-
 routes(server);
 
 io.sockets.on('connection', function (socket) {
-    //when recieving the data from the server, push the same message to client.
+    /*//when recieving the data from the server, push the same message to client.
     socket.on("clientMsg", function (data) {
         //send the data to the current client requested/sent.
         var msgData = data.msg.trim();
@@ -83,11 +87,15 @@ io.sockets.on('connection', function (socket) {
     socket.on("sender", function (data) {
         socket.emit("sender", data);
         socket.broadcast.emit("sender", data);
-    });
+    });*/
     socket.on("user join",function(name){
-        socket.nickname = name.name;
-        users[name.name] = socket;
-        console.log(Object.keys(users));
+        if(onlineUsers[name.username] === undefined){
+            socket.username = name.username;
+            onlineUsers[name.username] = socket;
+            console.log(onlineUsers);
+            socket.emit("online user", Object.keys(onlineUsers));
+            socket.broadcast.emit('online user',Object.keys(onlineUsers));
+        }
     });
 });
 
