@@ -90,6 +90,7 @@ io.sockets.on('connection', function (socket) {
         socket.broadcast.emit("sender", data);
     });*/
     socket.on("user join",function(name){
+        console.log("socket==========",socket);
         if(onlineUsers[name.userId] === undefined){
             socket.userId = name.userId;
             onlineUsers[name.userId] = socket;

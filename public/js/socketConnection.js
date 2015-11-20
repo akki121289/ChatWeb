@@ -15,7 +15,7 @@ $(document).ready(function(){
       socket.on('online user',function(users){
             var html = '';
             for(var key in users){
-                  html += '<li class="list-group-item">' +users[key]+ '</li>';
+                  html += '<li class="list-group-item" onclick=CreateTab("'+users[key]+'") >' +users[key]+ '</li>';
             }
             $onlineUser.html(html);
       });
@@ -58,3 +58,9 @@ $(document).ready(function(){
       });*/
       
 });
+
+
+function CreateTab(name)
+{    
+      $('#chat_tabs').append('<div class=col-sm-4 style="border:1px solid black;"><div><div>'+ name +'</div><div style="width:80%;float:left;border:1px solid black;"> <ul id="messages" style="padding-bottom:40px"></ul></div><div style="width:20%; margin-left:auto;"><div style="width:100%; margin-left: auto;"><ol id="users"></ol></div></div></div><div><form action="" id="msgForm"><input id="message" autocomplete="off" placeholder="Type message" class="form-control"><button>Send</button></form></div> </div>')
+}
