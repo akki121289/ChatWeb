@@ -2,7 +2,8 @@ var Hapi = require('hapi'),
     Good = require('good'),
     mongoose   = require('mongoose'),
     routes = require('./routes'),
-    onlineUsers = {};
+    onlineUsers = {},
+    userWithNames = {};
 
 mongoose.connect('mongodb://localhost/chatweb');
 
@@ -89,13 +90,24 @@ io.sockets.on('connection', function (socket) {
         socket.broadcast.emit("sender", data);
     });*/
     socket.on("user join",function(name){
-        if(onlineUsers[name.username] === undefined){
-            socket.username = name.username;
-            onlineUsers[name.username] = socket;
-            console.log(onlineUsers);
-            socket.emit("online user", Object.keys(onlineUsers));
-            socket.broadcast.emit('online user',Object.keys(onlineUsers));
+        if(onlineUsers[name.userId] === undefined){
+            socket.userId = name.userId;
+            onlineUsers[name.userId] = socket;
+            userWithNames[name.userId] = name.username;
+            
+            socket.emit("online user", userWithNames);
+            socket.broadcast.emit('online user',userWithNames);
         }
+    });
+    socket.on('message',function(data){
+        socket.emit('new message',data);
+        socket.broadcast.emit('new message',data);
+    });
+    socket.on('disconnect',function(){
+        delete onlineUsers[socket.userId];
+        delete userWithNames[socket.userId];
+        socket.emit("online user", userWithNames);
+        socket.broadcast.emit('online user',userWithNames);
     });
 });
 

@@ -10,6 +10,7 @@ html(lang='en')
   body
     .container
       H1 #{username}
+      input(type="hidden" name="target" value="#{email}" id="userId")
       input(type="hidden" name="target" value="#{username}" id="username")
       div.col-sm-12
         a(src='/logout',display='block', float='right') logout
@@ -19,9 +20,8 @@ html(lang='en')
             | # of Online Users: 
             span#online 0
         ul#onlineUser.list-group
-          li.list-group-item akash
-          li.list-group-item Nitesh
-          li.list-group-item Gaurav
+          //
+            li.list-group-item Nitesh
       .col-sm-7
         div
           div(style='width:80%;float:left  ')
@@ -30,6 +30,6 @@ html(lang='en')
             div(style='width:100%; margin-left: auto;')
               ol#users
         div
-          form(action='')
-            input#m.form-control(autocomplete='off', placeholder='Type message')
+          form(action='' id="msgForm")
+            input#message.form-control(autocomplete='off', placeholder='Type message')
             button Send

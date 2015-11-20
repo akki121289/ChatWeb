@@ -2,20 +2,32 @@ $(document).ready(function(){
       
       var $username = $('#username');
       var $onlineUser = $('#onlineUser');
+      var $msgForm = $('#msgForm');
+      var $userId = $('#userId');
+      var $message = $('#message');
+      var $messages = $('#messages');
       socket = io.connect();
       // new user join
-      socket.emit('user join',{username:$username.val()});
+      socket.emit('user join',{userId:$userId.val(),username:$username.val()});
       
       // broadcast online user list
 
       socket.on('online user',function(users){
-            var html;
-            for(var i= 0; i<users.length; i++){
-                  html += '<li class="list-group-item">' +users[i]+ '</li>';
+            var html = '';
+            for(var key in users){
+                  html += '<li class="list-group-item">' +users[key]+ '</li>';
             }
-            $onlineUser.html = html;
+            $onlineUser.html(html);
       });
 
+      $msgForm.submit(function(e){
+            e.preventDefault();
+            socket.emit('message',{msg:$message.val()});
+      });
+
+      socket.on('new message',function(data){
+            $messages.append('<li>'+data.msg+'</li>')
+      });
       //When send button is clicked on, send the message to server
       /*$("#send").click(function () {
       //send to the server with person name and message

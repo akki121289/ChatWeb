@@ -1,6 +1,4 @@
-var NewUser = require('../models/newUser'),
-	Login = require('../models/login'),
-	Users = require('../models/users');
+var Users = require('../models/users');
 
 module.exports = function(server){
 
@@ -30,8 +28,7 @@ module.exports = function(server){
 	    method: 'GET',
 	    path: '/userlist',
 	    handler: function (request, reply) {
-	    	console.log(request.session);
-	        reply.view('userlist',{username:request.session.get('email')});
+	        reply.view('userlist',{email:request.session.get('email'),username:request.session.get('username')});
 	    }
 	});
 
@@ -49,13 +46,19 @@ module.exports = function(server){
 	    method: 'POST',
 	    path: '/login',
 	    handler: function (request, reply) {
-	    	console.log(request.session);
-	    	Login.find({username:request.payload.username,password:request.payload.password},function(err, data){
+	    	Users.find({email:request.payload.username,password:request.payload.password},function(err, data){
+
 	    		if(err){
 	    			reply("some thing went wrong");
-	    		}else if(data.length){	    				    							
+	    		}else if(data.length){	   	    			 				    							
 					request.session.set('email',request.payload.username);
-	    			reply.redirect('/userlist');
+					Users.update({"email" : request.payload.username }, { $set: { "status": true }}).exec();
+					Users.findOne({"email" : request.payload.username },function(err ,user){
+						console.log(user);
+						request.session.set('username',user.username);
+						reply.redirect('/userlist');
+					});
+	    			//reply.redirect('/userlist');
 	    		}else{
 	    			reply("user not found");
 	    		}
@@ -67,7 +70,6 @@ module.exports = function(server){
 	    method: 'GET',
 	    path: '/registration',
 	    handler: function (request, reply) {
-	    	console.log(request.session);
 	        reply.view('registration');
 
 	    }
@@ -77,41 +79,21 @@ module.exports = function(server){
 	    method: 'POST',
 	    path: '/registration',
 	    handler: function (request, reply) {
-	    	console.log(request.payload);
 	    	if(request.payload.password === request.payload.passwordconfirm){
 	    		delete request.payload.passwordconfirm;
 	    	}
-	    	console.log(request.payload);
-	    	var newUser = new NewUser(request.payload);
-	    	newUser.save(function (error) {
+	    	// console.log(request.payload);
+	    	var users = new Users(request.payload);
+	    	users.save(function (error) {
 	            if (error) {
 	                reply({
 	                    statusCode: 503,
 	                    message: error
 	                });
-	            } else {
-	            	var addLogin = Login({username:request.payload.email,password:request.payload.password});
-	            	addLogin.save(function (error){
-	            		if(error){
-	            			reply({
-			                    statusCode: 503,
-			                    message: error
-			                });
-	            		}else{
-	            			var user = Users({username:request.payload.email,email:request.payload.email,status:true});
-	            			user.save(function(error){
-	            				if(error){
-	            					reply({
-					                    statusCode: 503,
-					                    message: error
-					                });
-	            				}else{
-	            					reply.redirect('/login');
-	            				}
-	            			});
-	            		}
-	            	});
-	            }
+   				}else{
+    					reply.redirect('/login');
+    				 }
+	            		
         	});
 		}
 	});
