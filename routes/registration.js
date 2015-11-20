@@ -28,7 +28,11 @@ module.exports = function(server){
 	    method: 'GET',
 	    path: '/userlist',
 	    handler: function (request, reply) {
-	        reply.view('userlist',{email:request.session.get('email'),username:request.session.get('username')});
+	    	if(request.session.get('email')){
+	        	reply.view('userlist',{email:request.session.get('email'),username:request.session.get('username')});
+	    	}else{
+	    		reply.redirect('/login');
+	    	}
 	    }
 	});
 
@@ -36,9 +40,19 @@ module.exports = function(server){
 	    method: 'GET',
 	    path: '/login',
 	    handler: function (request, reply) {
-	    	request.session.set('emilId','aa@gmail.com');
-	        reply.view('login');
-
+	    	if(!request.session.get('email')){
+	        	reply.view('login');
+	    	}else{
+	    		reply.redirect('/userlist')
+	    	}
+	    }
+	});
+	server.route({
+	    method: 'GET',
+	    path: '/logout',
+	    handler: function (request, reply) {
+	    	request.session.reset();
+	    	reply("logout");
 	    }
 	});
 
@@ -70,7 +84,11 @@ module.exports = function(server){
 	    method: 'GET',
 	    path: '/registration',
 	    handler: function (request, reply) {
-	        reply.view('registration');
+	        if(!request.session.get('email')){
+	        	reply.view('registration');
+	        }else{
+	        	reply.redirect('/userlist');
+	        }
 
 	    }
 	});

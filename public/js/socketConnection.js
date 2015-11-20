@@ -26,7 +26,7 @@ $(document).ready(function(){
       });
 
       socket.on('new message',function(data){
-            $messages.append('<li>'+data.msg+'</li>')
+            $messages.append('<li>'+data.msg+'</li>');
       });
       //When send button is clicked on, send the message to server
       /*$("#send").click(function () {

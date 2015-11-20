@@ -13,15 +13,13 @@ html(lang='en')
       input(type="hidden" name="target" value="#{email}" id="userId")
       input(type="hidden" name="target" value="#{username}" id="username")
       div.col-sm-12
-        a(src='/logout',display='block', float='right') logout
+        #logour <a href='/logout'> LOGOUT </a>
       .col-sm-4
         div
           b
             | # of Online Users: 
             span#online 0
         ul#onlineUser.list-group
-          //
-            li.list-group-item Nitesh
       .col-sm-7
         div
           div(style='width:80%;float:left  ')
