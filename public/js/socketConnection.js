@@ -6,23 +6,27 @@ $(document).ready(function(){
       var $userId = $('#userId');
       var $message = $('#message');
       var $messages = $('#messages');
+      var $totalonline = $('#totalonline');
       socket = io.connect();
       // new user join
       socket.emit('user join',{userId:$userId.val(),username:$username.val()});
       
       // broadcast online user list
-
+      alert($('#nitesh').attr('set'));
       socket.on('online user',function(users){
             var html = '';
+            var numbers = (Object.keys(users)).length;
             for(var key in users){
-                  html += '<li class="list-group-item">' +users[key]+ '</li>';
+                  html += '<li class="list-group-item" >' +users[key]+ '</li>';
             }
             $onlineUser.html(html);
+            $totalonline.html(' '+numbers+' ');
       });
 
       $msgForm.submit(function(e){
             e.preventDefault();
             socket.emit('message',{msg:$message.val()});
+            $message.val('');
       });
 
       socket.on('new message',function(data){

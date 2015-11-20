@@ -90,14 +90,12 @@ io.sockets.on('connection', function (socket) {
         socket.broadcast.emit("sender", data);
     });*/
     socket.on("user join",function(name){
-        if(onlineUsers[name.userId] === undefined){
             socket.userId = name.userId;
             onlineUsers[name.userId] = socket;
             userWithNames[name.userId] = name.username;
             
             socket.emit("online user", userWithNames);
             socket.broadcast.emit('online user',userWithNames);
-        }
     });
     socket.on('message',function(data){
         socket.emit('new message',data);
