@@ -2,6 +2,7 @@ var Hapi = require('hapi'),
     Good = require('good'),
     mongoose   = require('mongoose'),
     routes = require('./routes'),
+    Message = require('./models/message'),
     onlineUsers = {},
     userWithNames = {};
 
@@ -103,8 +104,17 @@ io.sockets.on('connection', function (socket) {
             socket.emit('online user numbers',(Object.keys(userWithNames)).length);
             socket.broadcast.emit('online user numbers',(Object.keys(userWithNames)).length);
     });
+    Message.find({}).sort('-createdAt').limit(10).exec(function(err, data){
+        socket.emit('load messages',data);
+    });
     socket.on('message',function(data){
-        var obj = {msg:data.msg,username:(userWithNames[socket.userId]).toUpperCase()}
+        var obj = {msg:data.msg,username:(userWithNames[socket.userId])};
+        var message = new Message(obj);
+        message.save(function(err){
+            if (err) {
+                console.log('message not save in db');
+            };
+        });
         socket.emit('new message',obj);
         socket.broadcast.emit('new message',obj);
     });

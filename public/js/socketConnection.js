@@ -45,8 +45,14 @@ $(document).ready(function(){
             }
       });
 
+      socket.on('load messages',function(msgs){
+            for(var i = msgs.length-1; i>=0; i--){
+                  $messages.append('<li><b>'+(msgs[i].username).toUpperCase()+':</b> '+msgs[i].msg+'</li>');
+            }
+      });
+
       socket.on('new message',function(data){
-            $messages.append('<li><b>'+data.username+':</b>  '+data.msg+'</li>');
+            $messages.append('<li><b>'+(data.username).toUpperCase()+':</b>  '+data.msg+'</li>');
       });
 
       //When send button is clicked on, send the message to server
