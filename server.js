@@ -89,13 +89,17 @@ io.sockets.on('connection', function (socket) {
         socket.emit("sender", data);
         socket.broadcast.emit("sender", data);
     });*/
+    socket.emit('on join',userWithNames);
+    socket.broadcast.emit('on join',userWithNames);
+    socket.emit('online user numbers',(Object.keys(userWithNames)).length);
     socket.on("user join",function(name){
             socket.userId = name.userId;
             onlineUsers[name.userId] = socket;
             userWithNames[name.userId] = name.username;
             
-            socket.emit("online user", userWithNames);
-            socket.broadcast.emit('online user',userWithNames);
+            socket.emit("online user", name);
+            socket.broadcast.emit('online user',name);
+            socket.emit('online user numbers',(Object.keys(userWithNames)).length);
     });
     socket.on('message',function(data){
         socket.emit('new message',data);
@@ -104,8 +108,9 @@ io.sockets.on('connection', function (socket) {
     socket.on('disconnect',function(){
         delete onlineUsers[socket.userId];
         delete userWithNames[socket.userId];
-        socket.emit("online user", userWithNames);
-        socket.broadcast.emit('online user',userWithNames);
+        socket.emit("remove user", socket.userId);
+        socket.broadcast.emit('remove user',socket.userId);
+        socket.emit('online user numbers',(Object.keys(userWithNames)).length);
     });
 });
 
