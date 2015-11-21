@@ -1,4 +1,5 @@
-var Users = require('../models/users');
+var Users = require('../models/users')
+	bcrypt = require('bcryptjs');
 
 module.exports = function(server){
 
@@ -60,11 +61,10 @@ module.exports = function(server){
 	    method: 'POST',
 	    path: '/login',
 	    handler: function (request, reply) {
-	    	Users.find({email:request.payload.username,password:request.payload.password},function(err, data){
-
+	    	Users.findOne({email:request.payload.username},function(err, data){
 	    		if(err){
 	    			reply("some thing went wrong");
-	    		}else if(data.length){	   	    			 				    							
+	    		}else if(data && bcrypt.compareSync(request.payload.password, data.password)){	   	    			 				    							
 					request.session.set('email',request.payload.username);
 					Users.update({"email" : request.payload.username }, { $set: { "status": true }}).exec();
 					Users.findOne({"email" : request.payload.username },function(err ,user){
@@ -100,7 +100,9 @@ module.exports = function(server){
 	    	if(request.payload.password === request.payload.passwordconfirm){
 	    		delete request.payload.passwordconfirm;
 	    	}
-	    	
+	    	var salt = bcrypt.genSaltSync(10);
+			var hash = bcrypt.hashSync(request.payload.password, salt);
+			request.payload.password = hash;
 	    	var users = new Users(request.payload);
 	    	users.save(function (error) {
 	            if (error) {
@@ -110,8 +112,7 @@ module.exports = function(server){
 	                });
    				}else{
     					reply.redirect('/login');
-    				 }
-	            		
+    				 }		
         	});
 		}
 	});

@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "bcryptjs": "^2.3.0",
     "good": "^6.4.0",
     "good-console": "^5.2.0",
     "handlebars": "^4.0.4",
