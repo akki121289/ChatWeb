@@ -1,5 +1,6 @@
 $(document).ready(function(){
       
+      // setContainerHeight();      
       var $username = $('#username');
       var $onlineUser = $('#onlineUser');
       var $msgForm = $('#msgForm');
@@ -38,17 +39,16 @@ $(document).ready(function(){
 
       $msgForm.submit(function(e){
             e.preventDefault();
-            socket.emit('message',{msg:$message.val()});
-            $message.val('');
+            if($message.val().trim() !== ''){
+                  socket.emit('message',{msg:$message.val()});
+                  $message.val('');
+            }
       });
 
       socket.on('new message',function(data){
-            $messages.append('<li>'+data.msg+'</li>');
+            $messages.append('<li><b>'+data.username+':</b>  '+data.msg+'</li>');
       });
 
-      $('button').onClick(function(){
-            alert("okkkkk");
-      });
       //When send button is clicked on, send the message to server
       /*$("#send").click(function () {
       //send to the server with person name and message
@@ -83,5 +83,10 @@ $(document).ready(function(){
 
 function CreateTab(name,key)
 {    
-      $('#chat_tabs').append('<div class=col-sm-4 style="border:1px solid black;"><div><div>'+ name +'</div><div style="width:80%;float:left;border:1px solid black;"> <ul style="padding-bottom:40px"></ul></div><div style="width:20%; margin-left:auto;"><div style="width:100%; margin-left: auto;"><ol id="users"></ol></div></div></div><div><form data-attribute="'+key+'" class="personalMsgForm"><input id="" autocomplete="off" placeholder="Type message" class="form-control"><button>Send</button></form></div> </div>')
+      $('#chat_tabs').append('<div class=col-sm-3 style="border:1px solid black;background:white;"><div>     <div class=col-sm-12 style="background:green;">  <span class="glyphicon glyphicon-minus" style="float: right;" aria-hidden="true"></span>  <span class="glyphicon glyphicon-unchecked" style="float: right;" aria-hidden="true"></span>  <span class="glyphicon glyphicon-remove" style="float: right;" aria-hidden="true"></span> </div>    <div>'+ name +'</div><div style="width:80%;float:left;"> <ul id="messages" style="padding-bottom:40px"></ul></div><div style="width:20%; margin-left:auto;"><div style="width:100%; margin-left: auto;"><ol id="users"></ol></div></div></div><div><form action="" id="msgForm"><input id="message" autocomplete="off" placeholder="Type message" class="form-control"><button>Send</button></form></div> </div>')
+}
+
+function setContainerHeight()
+{     var height = $( window ).height();
+      $('.container').height(height);
 }

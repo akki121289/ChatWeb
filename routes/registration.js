@@ -72,7 +72,7 @@ module.exports = function(server){
 						request.session.set('username',user.username);
 						reply.redirect('/userlist');
 					});
-	    			//reply.redirect('/userlist');
+	    			
 	    		}else{
 	    			reply("user not found");
 	    		}
@@ -100,7 +100,7 @@ module.exports = function(server){
 	    	if(request.payload.password === request.payload.passwordconfirm){
 	    		delete request.payload.passwordconfirm;
 	    	}
-	    	// console.log(request.payload);
+	    	
 	    	var users = new Users(request.payload);
 	    	users.save(function (error) {
 	            if (error) {

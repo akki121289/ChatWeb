@@ -92,6 +92,7 @@ io.sockets.on('connection', function (socket) {
     socket.emit('on join',userWithNames);
     socket.broadcast.emit('on join',userWithNames);
     socket.emit('online user numbers',(Object.keys(userWithNames)).length);
+    socket.broadcast.emit('online user numbers',(Object.keys(userWithNames)).length);
     socket.on("user join",function(name){
             socket.userId = name.userId;
             onlineUsers[name.userId] = socket;
@@ -100,10 +101,12 @@ io.sockets.on('connection', function (socket) {
             socket.emit("online user", name);
             socket.broadcast.emit('online user',name);
             socket.emit('online user numbers',(Object.keys(userWithNames)).length);
+            socket.broadcast.emit('online user numbers',(Object.keys(userWithNames)).length);
     });
     socket.on('message',function(data){
-        socket.emit('new message',data);
-        socket.broadcast.emit('new message',data);
+        var obj = {msg:data.msg,username:(userWithNames[socket.userId]).toUpperCase()}
+        socket.emit('new message',obj);
+        socket.broadcast.emit('new message',obj);
     });
     socket.on('disconnect',function(){
         delete onlineUsers[socket.userId];
@@ -111,6 +114,7 @@ io.sockets.on('connection', function (socket) {
         socket.emit("remove user", socket.userId);
         socket.broadcast.emit('remove user',socket.userId);
         socket.emit('online user numbers',(Object.keys(userWithNames)).length);
+        socket.broadcast.emit('online user numbers',(Object.keys(userWithNames)).length);
     });
 });
 
