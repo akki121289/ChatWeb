@@ -95,9 +95,10 @@ io.sockets.on('connection', function (socket) {
     socket.emit('online user numbers',(Object.keys(userWithNames)).length);
     socket.broadcast.emit('online user numbers',(Object.keys(userWithNames)).length);
     socket.on("user join",function(name){
-            socket.userId = name.userId;
-            onlineUsers[name.userId] = socket;
-            userWithNames[name.userId] = name.username;
+            var userId = (name.userId).substr(0,(name.userId).indexOf('@'));
+            socket.userId = userId;
+            onlineUsers[userId] = socket;
+            userWithNames[userId] = name.username;
             
             socket.emit("online user", name);
             socket.broadcast.emit('online user',name);
@@ -119,7 +120,7 @@ io.sockets.on('connection', function (socket) {
         socket.broadcast.emit('new message',obj);
     });
     socket.on('personal message',function(data){
-        var obj = {msg:data.msg,username:data.friendId};
+        var obj = {msg:data.msg,username:userWithNames[socket.userId],userId:socket.userId};
         onlineUsers[data.friendId].emit('message from friend',obj);
     });
     socket.on('disconnect',function(){

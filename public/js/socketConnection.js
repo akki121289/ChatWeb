@@ -35,8 +35,7 @@ $(document).ready(function(){
       });
 
       socket.on('remove user',function(user){
-            var userId = user.substr(0,user.indexOf('@'));
-            $('#'+userId).remove();
+            $('#'+user).remove();
       });
       // group chatting
       $msgForm.submit(function(e){
@@ -56,7 +55,19 @@ $(document).ready(function(){
       socket.on('new message',function(data){
             $messages.append('<li><b>'+(data.username).toUpperCase()+':</b>  '+data.msg+'</li>');
       });
+
       // one to one chatting
+      socket.on('message from friend', function(data){
+            console.log(data);
+            if ($('#'+data.userId).length){
+                  alert('in');
+                  $('#'+data.userId).find('.personalMessages').append('<li><b>'+(data.username).toUpperCase()+':</b>  '+data.msg+'</li>');
+            }else{
+                  alert('out');
+                  CreateTab(data.username,data.userId);
+                  $('#'+data.userId).find('.personalMessages').append('<li><b>'+(data.username).toUpperCase()+':</b>  '+data.msg+'</li>');
+            }
+      });
       /*$personalMsgForm.submit(function(e){
 
             e.preventDefault();
@@ -105,13 +116,27 @@ $(document).ready(function(){
 
 
 function CreateTab(name,userId)
-{    
-      var Id = userId.substr(0,userId.indexOf('@'));
+{          
+      var Id;
+      if(userId.indexOf('@') !== -1){
+            Id = userId.substr(0,userId.indexOf('@'));
+      }else{
+            Id = userId;
+      }
+     
       $('#chat_tabs').append('<form data-attribute="'+Id+'" id="'+Id+'" class="personalMsgForm"><div class=col-sm-3 style="border:1px solid black;background:white;"><div> <div class=col-sm-12 style="background:green;">  <span class="glyphicon glyphicon-minus" onclick="hideTab(this)" style="float: right;" aria-hidden="true"></span>  <span class="glyphicon glyphicon-unchecked" style="float: right;" aria-hidden="true"></span>  <span class="glyphicon glyphicon-remove" style="float: right;" aria-hidden="true"></span> </div>    <div>'+ name +'</div><div class="hideable" style="width:80%;float:left;"> <ul class="personalMessages" style="padding-bottom:40px"></ul></div></div><div class="hideable" ><input class="personalMessage" autocomplete="off" placeholder="Type message" class="form-control"><button>Send</button></div> </div></form>')
+
       $('.personalMsgForm').submit(function(e){
             e.preventDefault();
-            alert("okkkkkk");
-      })
+            alert('okkk');
+            var msg = $(this).find('.personalMessage').val().trim();
+            if(msg !== ''){
+                  $(this).find('.personalMessages').append('<li><b>'+$('#username').val().toUpperCase()+':</b>  '+msg+'</li>');
+                  console.log({msg:msg,friendId:$(this).attr('data-attribute')});
+                  socket.emit('personal message',{msg:msg,friendId:$(this).attr('data-attribute')});
+            }
+            $(this).find('.personalMessage').val('');
+      });
 }
 
 function setContainerHeight()
