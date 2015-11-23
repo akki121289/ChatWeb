@@ -31,7 +31,7 @@ $(document).ready(function(){
       socket.on('online user',function(user){
             var userId = (user.userId).substr(0,(user.userId).indexOf('@'));
             var aa = user.username.toString();
-            $onlineUser.append("<li id='"+userId+ "' class=list-group-item onclick=\"CreateTab('"+aa+"' ,'"+user.userId+"')\" > "+user.username+ "</li>");
+            $onlineUser.append("<li class=list-group-item onclick=\"CreateTab('"+aa+"' ,'"+user.userId+"')\" > "+user.username+ "</li>");
       });
 
       socket.on('remove user',function(user){
@@ -58,9 +58,13 @@ $(document).ready(function(){
 
       // one to one chatting
       socket.on('message from friend', function(data){
+<<<<<<< HEAD
             console.log("data==============",data);
             // CreateTab(name,userId)
             console.log(data);
+=======
+            
+>>>>>>> 19a21c209153382f3e552f80e8143d2011c7a8a3
             if ($('#'+data.userId).length){
                   alert('in');
                   $('#'+data.userId).find('.personalMessages').append('<li><b>'+(data.username).toUpperCase()+':</b>  '+data.msg+'</li>');
@@ -130,7 +134,6 @@ function CreateTab(name,userId)
 
       $('.personalMsgForm').submit(function(e){
             e.preventDefault();
-            alert('okkk');
             var msg = $(this).find('.personalMessage').val().trim();
             if(msg !== ''){
                   $(this).find('.personalMessages').append('<li><b>'+$('#username').val().toUpperCase()+':</b>  '+msg+'</li>');
