@@ -16,7 +16,7 @@ $(document).ready(function(){
             var html = '';
             for(var key in users){
                   var userId = key.substr(0,key.indexOf('@'));
-                  html += '<li id="'+userId+'"class="list-group-item" onclick=CreateTab("'+users[key]+'","'+key+'") >' +users[key]+ '</li>';
+                  html += '<li id="'+userId+'"class="list-group-item" onclick=CreateTab("'+users[key]+'") >' +users[key]+ '</li>';
             }
             $onlineUser.html(html);
       });
@@ -87,7 +87,7 @@ $(document).ready(function(){
 });
 
 
-function CreateTab(name,key)
+function CreateTab(name)
 {    
       $('#chat_tabs').append('<div class=col-sm-3 style="border:1px solid black;background:white;"><div>     <div class=col-sm-12 style="background:green;">  <span class="glyphicon glyphicon-minus" style="float: right;" aria-hidden="true"></span>  <span class="glyphicon glyphicon-unchecked" style="float: right;" aria-hidden="true"></span>  <span class="glyphicon glyphicon-remove" style="float: right;" aria-hidden="true"></span> </div>    <div>'+ name +'</div><div style="width:80%;float:left;"> <ul id="messages" style="padding-bottom:40px"></ul></div><div style="width:20%; margin-left:auto;"><div style="width:100%; margin-left: auto;"><ol id="users"></ol></div></div></div><div><form action="" id="msgForm"><input id="message" autocomplete="off" placeholder="Type message" class="form-control"><button>Send</button></form></div> </div>')
 }
