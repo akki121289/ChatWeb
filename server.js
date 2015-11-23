@@ -118,6 +118,10 @@ io.sockets.on('connection', function (socket) {
         socket.emit('new message',obj);
         socket.broadcast.emit('new message',obj);
     });
+    socket.on('personal message',function(data){
+        var obj = {msg:data.msg,username:data.friendId};
+        onlineUsers[data.friendId].emit('message from friend',obj);
+    });
     socket.on('disconnect',function(){
         delete onlineUsers[socket.userId];
         delete userWithNames[socket.userId];

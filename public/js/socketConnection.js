@@ -9,14 +9,15 @@ $(document).ready(function(){
       var $messages = $('#messages');
       var $totalonline = $('#totalonline');
       var $personalMsgForm = $('.personalMsgForm');
+      var $personalMessage = $('.personalMessage');
+      var $personalMessages = $('.personalMessages');
       socket = io.connect();
       // new user join
-
       socket.on('on join',function(users){
             var html = '';
             for(var key in users){
                   var userId = key.substr(0,key.indexOf('@'));
-                  html += '<li id="'+userId+'"class="list-group-item" onclick=CreateTab("'+users[key]+'") >' +users[key]+ '</li>';
+                  html += '<li id="'+userId+'"class="list-group-item" onclick=CreateTab("'+users[key]+'","'+key+'") >' +users[key]+ '</li>';
             }
             $onlineUser.html(html);
       });
@@ -29,14 +30,14 @@ $(document).ready(function(){
       
       socket.on('online user',function(user){
             var userId = (user.userId).substr(0,(user.userId).indexOf('@'));
-            $onlineUser.append('<li id="'+userId+'" class="list-group-item" onclick=CreateTab("'+user.username+'","'+user.userId+'") >' +user.username+ '</li>')
+            $onlineUser.append('<li id="'+userId+'" class="list-group-item" onclick=CreateTab("'+user.username+'","'+userId+'") >' +user.username+ '</li>')
       });
 
       socket.on('remove user',function(user){
             var userId = user.substr(0,user.indexOf('@'));
             $('#'+userId).remove();
       });
-
+      // group chatting
       $msgForm.submit(function(e){
             e.preventDefault();
             if($message.val().trim() !== ''){
@@ -53,6 +54,21 @@ $(document).ready(function(){
 
       socket.on('new message',function(data){
             $messages.append('<li><b>'+(data.username).toUpperCase()+':</b>  '+data.msg+'</li>');
+      });
+      // one to one chatting
+      $personalMsgForm.submit(function(e){
+
+            e.preventDefault();
+            var msg = $personalMessage.val().trim();
+            if(msg !== ''){
+                  $personalMessages.append('<li><b>'+$username.val().toUpperCase()+':</b>  '+msg+'</li>');
+                  socket('personal message',{msg:msg,friendId:$personalMsgForm.attr('data-attribute')});
+                  $personalMessage.val('');
+            }
+
+      });
+      socket.on('message from friend',function(data){
+            
       });
 
       //When send button is clicked on, send the message to server
@@ -87,9 +103,9 @@ $(document).ready(function(){
 });
 
 
-function CreateTab(name)
+function CreateTab(name,userId)
 {    
-      $('#chat_tabs').append('<div class=col-sm-3 style="border:1px solid black;background:white;"><div>     <div class=col-sm-12 style="background:green;">  <span class="glyphicon glyphicon-minus" style="float: right;" aria-hidden="true"></span>  <span class="glyphicon glyphicon-unchecked" style="float: right;" aria-hidden="true"></span>  <span class="glyphicon glyphicon-remove" style="float: right;" aria-hidden="true"></span> </div>    <div>'+ name +'</div><div style="width:80%;float:left;"> <ul id="messages" style="padding-bottom:40px"></ul></div><div style="width:20%; margin-left:auto;"><div style="width:100%; margin-left: auto;"><ol id="users"></ol></div></div></div><div><form action="" id="msgForm"><input id="message" autocomplete="off" placeholder="Type message" class="form-control"><button>Send</button></form></div> </div>')
+      $('#chat_tabs').append('<div class=col-sm-3 style="border:1px solid black;background:white;"><div>     <div class=col-sm-12 style="background:green;">  <span class="glyphicon glyphicon-minus" style="float: right;" aria-hidden="true"></span>  <span class="glyphicon glyphicon-unchecked" style="float: right;" aria-hidden="true"></span>  <span class="glyphicon glyphicon-remove" style="float: right;" aria-hidden="true"></span> </div>    <div>'+ name +'</div><div style="width:80%;float:left;"> <ul class="personalMessages" style="padding-bottom:40px"></ul></div><div style="width:20%; margin-left:auto;"><div style="width:100%; margin-left: auto;"><ol id="users"></ol></div></div></div><div><form action="" class="personalMsgForm" data-attribute="'+userId+'"><input class="personalMessage" autocomplete="off" placeholder="Type message" class="form-control"><button>Send</button></form></div> </div>')
 }
 
 function setContainerHeight()
