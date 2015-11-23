@@ -30,7 +30,8 @@ $(document).ready(function(){
       
       socket.on('online user',function(user){
             var userId = (user.userId).substr(0,(user.userId).indexOf('@'));
-            $onlineUser.append('<li id="'+userId+'" class="list-group-item" onclick=CreateTab("'+user.username+'","'+userId+'") >' +user.username+ '</li>')
+            var aa = user.username.toString();
+            $onlineUser.append("<li id='"+userId+ "' class=list-group-item onclick=\"CreateTab('"+aa+"' ,'"+user.userId+"')\" > "+user.username+ "</li>");
       });
 
       socket.on('remove user',function(user){
@@ -42,8 +43,8 @@ $(document).ready(function(){
             e.preventDefault();
             if($message.val().trim() !== ''){
                   socket.emit('message',{msg:$message.val()});
-                  $message.val('');
             }
+            $message.val('');
       });
 
       socket.on('load messages',function(msgs){
@@ -56,20 +57,20 @@ $(document).ready(function(){
             $messages.append('<li><b>'+(data.username).toUpperCase()+':</b>  '+data.msg+'</li>');
       });
       // one to one chatting
-      $personalMsgForm.submit(function(e){
+      /*$personalMsgForm.submit(function(e){
 
             e.preventDefault();
-            var msg = $personalMessage.val().trim();
+            var msg = $(this).find('.personalMessage').val().trim();
             if(msg !== ''){
-                  $personalMessages.append('<li><b>'+$username.val().toUpperCase()+':</b>  '+msg+'</li>');
-                  socket('personal message',{msg:msg,friendId:$personalMsgForm.attr('data-attribute')});
-                  $personalMessage.val('');
+                  $(this).find('.personalMessages').append('<li><b>'+$username.val().toUpperCase()+':</b>  '+msg+'</li>');
+                  socket('personal message',{msg:msg,friendId:$(this).attr('data-attribute')});
             }
+            $(this).find('.personalMessages').val('');
 
       });
       socket.on('message from friend',function(data){
             
-      });
+      });*/
 
       //When send button is clicked on, send the message to server
       /*$("#send").click(function () {
@@ -105,10 +106,19 @@ $(document).ready(function(){
 
 function CreateTab(name,userId)
 {    
-      $('#chat_tabs').append('<div class=col-sm-3 style="border:1px solid black;background:white;"><div>     <div class=col-sm-12 style="background:green;">  <span class="glyphicon glyphicon-minus" style="float: right;" aria-hidden="true"></span>  <span class="glyphicon glyphicon-unchecked" style="float: right;" aria-hidden="true"></span>  <span class="glyphicon glyphicon-remove" style="float: right;" aria-hidden="true"></span> </div>    <div>'+ name +'</div><div style="width:80%;float:left;"> <ul class="personalMessages" style="padding-bottom:40px"></ul></div><div style="width:20%; margin-left:auto;"><div style="width:100%; margin-left: auto;"><ol id="users"></ol></div></div></div><div><form action="" class="personalMsgForm" data-attribute="'+userId+'"><input class="personalMessage" autocomplete="off" placeholder="Type message" class="form-control"><button>Send</button></form></div> </div>')
+      $('#chat_tabs').append('<div class=col-sm-3 style="border:1px solid black;background:white;"><div> <div class=col-sm-12 style="background:green;">  <span class="glyphicon glyphicon-minus" style="float: right;" aria-hidden="true"></span>  <span class="glyphicon glyphicon-unchecked" style="float: right;" aria-hidden="true"></span>  <span class="glyphicon glyphicon-remove" style="float: right;" aria-hidden="true"></span> </div>    <div>'+ name +'</div><div style="width:80%;float:left;"> <ul id="messages" style="padding-bottom:40px"></ul></div><div style="width:20%; margin-left:auto;"><div style="width:100%; margin-left: auto;"><ol id="users"></ol></div></div></div><div><form onclick="return false" action="" class="chat_tab"><input id="messageTab" autocomplete="off" placeholder="Type message" class="form-control"><button onclick = "tabMessageSender()" >Send</button></form></div> </div>')
 }
 
 function setContainerHeight()
 {     var height = $( window ).height();
       $('.container').height(height);
+}
+
+function tabMessageSender()
+{
+            var message = $('#messageTab').val()
+            if(message !== ''){
+                  socket.emit('message',{msg:message});
+                  $('#messageTab').val('');
+            } 
 }
