@@ -100,7 +100,17 @@ $(document).ready(function(){
 
 function CreateTab(name)
 {    
-      $('#chat_tabs').append('<div class=col-sm-3 style="border:1px solid black;background:white;"><div> <div class=col-sm-12 style="background:green;">  <span class="glyphicon glyphicon-minus" style="float: right;" aria-hidden="true"></span>  <span class="glyphicon glyphicon-unchecked" style="float: right;" aria-hidden="true"></span>  <span class="glyphicon glyphicon-remove" style="float: right;" aria-hidden="true"></span> </div>    <div>'+ name +'</div><div style="width:80%;float:left;"> <ul id="messages" style="padding-bottom:40px"></ul></div><div style="width:20%; margin-left:auto;"><div style="width:100%; margin-left: auto;"><ol id="users"></ol></div></div></div><div><form onclick="return false" action="" class="chat_tab"><input id="messageTab" autocomplete="off" placeholder="Type message" class="form-control"><button onclick = "tabMessageSender()" >Send</button></form></div> </div>')
+      // $('#chat_tabs').append('<div class=col-sm-3 style="border:1px solid black;background:white;"><div> <div class=col-sm-12 style="background:green;">  <span class="glyphicon glyphicon-minus" style="float: right;" aria-hidden="true"></span>  <span class="glyphicon glyphicon-unchecked" style="float: right;" aria-hidden="true"></span>  <span class="glyphicon glyphicon-remove" style="float: right;" aria-hidden="true"></span> </div>    <div>'+ name +'</div><div style="width:80%;float:left;"> <ul id="messages" style="padding-bottom:40px"></ul></div><div style="width:20%; margin-left:auto;"><div style="width:100%; margin-left: auto;"><ol id="users"></ol></div></div></div><div><form onclick="return false" action="" class="chat_tab"><input id="messageTab" autocomplete="off" placeholder="Type message" class="form-control"><button onclick = "tabMessageSender()" >Send</button></form></div> </div>')
+      $('#chat_tabs').append('<div class=col-sm-3 style="border:1px solid black;background:white;"><div> <div class=col-sm-12 style="background:green;">  <span class="glyphicon glyphicon-minus" style="float: right;" aria-hidden="true"></span>  <span class="glyphicon glyphicon-unchecked" style="float: right;" aria-hidden="true"></span>  <span class="glyphicon glyphicon-remove" style="float: right;" aria-hidden="true"></span> </div>    <div>'+ name +'</div><div style="width:80%;float:left;"> <ul id="messages" style="padding-bottom:40px"></ul></div><div style="width:20%; margin-left:auto;"><div style="width:100%; margin-left: auto;"><ol id="users"></ol></div></div></div><div><form action="" class="chat_tab"><input id="messageTab" autocomplete="off" placeholder="Type message" class="form-control"><button>Send</button></form></div> </div>')
+      $('#chat_tabs .chat_tab').submit(function(e){
+            e.preventDefault();
+            console.log("etertrereter");
+            console.log(this.)
+            // if($message.val().trim() !== ''){
+            //       socket.emit('message',{msg:$message.val()});
+            //       $message.val('');
+            // } 
+      })
 }
 
 function setContainerHeight()
@@ -116,3 +126,14 @@ function tabMessageSender()
                   $('#messageTab').val('');
             } 
 }
+
+
+
+// $('#chat_tabs .chat_tab').submit(function(e){
+//             e.preventDefault();
+//             console.log("etertrereter");
+//             // if($message.val().trim() !== ''){
+//             //       socket.emit('message',{msg:$message.val()});
+//             //       $message.val('');
+//             // } 
+//       })
