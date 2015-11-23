@@ -29,7 +29,9 @@ $(document).ready(function(){
       
       socket.on('online user',function(user){
             var userId = (user.userId).substr(0,(user.userId).indexOf('@'));
-            $onlineUser.append('<li id="'+userId+'" class="list-group-item" onclick=CreateTab("'+user.username+'","'+user.userId+'") >' +user.username+ '</li>')
+            var aa = user.username.toString();
+            // $onlineUser.append('<li id="'+userId+'" class="list-group-item" onclick=\'CreateTab("'+aa+'","'+user.userId+'")\' >' +user.username+ '</li>')
+             $onlineUser.append("<li id='"+userId+ "' class=list-group-item onclick=\"CreateTab('"+aa+"' ,'"+user.userId+"')\" > "+user.username+ "</li>");
       });
 
       socket.on('remove user',function(user){
