@@ -58,13 +58,6 @@ $(document).ready(function(){
 
       // one to one chatting
       socket.on('message from friend', function(data){
-<<<<<<< HEAD
-            console.log("data==============",data);
-            // CreateTab(name,userId)
-            console.log(data);
-=======
-            
->>>>>>> 19a21c209153382f3e552f80e8143d2011c7a8a3
             if ($('#'+data.userId).length){
                   alert('in');
                   $('#'+data.userId).find('.personalMessages').append('<li><b>'+(data.username).toUpperCase()+':</b>  '+data.msg+'</li>');
