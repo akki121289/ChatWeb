@@ -23,11 +23,8 @@ html(lang='en')
         ul#onlineUser.list-group
       .col-sm-7(style='border:1px solid black;')
         div
-          div(style='width:80%;float:left  ')
+          div(style='width:100%;float:left;height:220px;overflow: scroll;')
             ul#messages(style='padding-bottom:40px')
-          div(style='width:20%; margin-left: auto;')
-            div(style='width:100%; margin-left: auto;')
-              ol#users
         div
           form(action='' id="msgForm")
             input#message.form-control(autocomplete='off', placeholder='Type message')
