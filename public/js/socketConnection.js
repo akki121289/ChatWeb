@@ -11,6 +11,9 @@ $(document).ready(function(){
       var $personalMsgForm = $('.personalMsgForm');
       var $personalMessage = $('.personalMessage');
       var $personalMessages = $('.personalMessages');
+
+      //added by brijesh
+      var divmsgs=document.getElementById('msgs');
       socket = io.connect();
       // new user join
 
@@ -56,7 +59,11 @@ $(document).ready(function(){
       });
 
       socket.on('new message',function(data){
+            var height = parseInt(divmsgs.style.height);
+            var down=divmsgs.scrollHeight-height;
+            $("#msgs").scrollTop(down);
             $messages.append('<li><b>'+(data.username).toUpperCase()+':</b>  '+data.msg+'</li>');
+            
       });
 
       // one to one chatting
