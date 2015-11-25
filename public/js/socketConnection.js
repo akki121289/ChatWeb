@@ -59,9 +59,10 @@ $(document).ready(function(){
       });
 
       socket.on('new message',function(data){
-            var height = parseInt(divmsgs.style.height);
-            var down=divmsgs.scrollHeight-height;
-            $("#msgs").scrollTop(down);
+            var down=divmsgs.scrollHeight-divmsgs.clientHeight;
+            if(down>=0){
+                  $("#msgs").scrollTop(down);
+            }
             $messages.append('<li><b>'+(data.username).toUpperCase()+':</b>  '+data.msg+'</li>');
             
       });
@@ -142,12 +143,18 @@ function CreateTab(name,userId)
       console.log(aa);
       if(jQuery.inArray(Id, aa) == -1)
       // if(jQuery.inArray(Id, window.currenTab) == -1)
-            $('#chat_tabs').append('<form data-attribute="'+Id+'" id="'+Id+'" class="personalMsgForm"><div class=col-sm-3 style="border:1px solid black;background:white;"><div> <div class=col-sm-12 style="background:green;">  <span class="glyphicon glyphicon-minus" onclick="hideTab(this)" style="float: right;" aria-hidden="true"></span>  <span class="glyphicon glyphicon-unchecked" style="float: right;" aria-hidden="true" onclick="showTab(this)" ></span>  <span class="glyphicon glyphicon-remove" style="float: right;" aria-hidden="true" onclick="removeTab(this)"></span> </div>    <div>'+ name +'</div><div class="hideable" style="width:100%;float:left;height:110px;overflow: scroll;"> <ul class="personalMessages" style="padding-bottom:40px"></ul></div></div><div class="hideable" ><input class="personalMessage" autocomplete="off" placeholder="Type message" class="form-control"><button>Send</button></div> </div></form>')
+            $('#chat_tabs').append('<form data-attribute="'+Id+'" id="'+Id+'" class="personalMsgForm"><div class=col-sm-3 style="border:1px solid black;background:white;"><div> <div class=col-sm-12 style="background:green;">  <span class="glyphicon glyphicon-minus" onclick="hideTab(this)" style="float: right;" aria-hidden="true"></span>  <span class="glyphicon glyphicon-unchecked" style="float: right;" aria-hidden="true" onclick="showTab(this)" ></span>  <span class="glyphicon glyphicon-remove" style="float: right;" aria-hidden="true" onclick="removeTab(this)"></span> </div>    <div>'+ name +'</div><div class="showMsgs" style="width:100%;float:left;height:110px;overflow: scroll;"> <ul class="personalMessages" style="padding-bottom:40px"></ul></div></div><div class="hideable" ><input class="personalMessage" autocomplete="off" placeholder="Type message" class="form-control"><button>Send</button></div> </div></form>')
 
       $('.personalMsgForm').submit(function(e){
             e.preventDefault();
             var msg = $(this).find('.personalMessage').val().trim();
             if(msg !== ''){
+                  var personalMsgs=document.getElementsByClassName('showMsgs')[0];
+                  var down=personalMsgs.scrollHeight-personalMsgs.clientHeight;
+                  if(down>=0){
+
+                        $(".showMsgs").scrollTop(down); 
+                  }
                   $(this).find('.personalMessages').append('<li><b>'+$('#username').val().toUpperCase()+':</b>  '+msg+'</li>');
                   console.log({msg:msg,friendId:$(this).attr('data-attribute')});
                   socket.emit('personal message',{msg:msg,friendId:$(this).attr('data-attribute')});
