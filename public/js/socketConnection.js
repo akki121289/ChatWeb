@@ -59,12 +59,11 @@ $(document).ready(function(){
       });
 
       socket.on('new message',function(data){
+            $messages.append('<li><b>'+(data.username).toUpperCase()+':</b>  '+data.msg+'</li>');
             var down=divmsgs.scrollHeight-divmsgs.clientHeight;
             if(down>=0){
                   $("#msgs").scrollTop(down);
             }
-            $messages.append('<li><b>'+(data.username).toUpperCase()+':</b>  '+data.msg+'</li>');
-            
       });
 
       // one to one chatting
@@ -149,13 +148,13 @@ function CreateTab(name,userId)
             e.preventDefault();
             var msg = $(this).find('.personalMessage').val().trim();
             if(msg !== ''){
+                  $(this).find('.personalMessages').append('<li><b>'+$('#username').val().toUpperCase()+':</b>  '+msg+'</li>');
                   var personalMsgs=document.getElementsByClassName('showMsgs')[0];
                   var down=personalMsgs.scrollHeight-personalMsgs.clientHeight;
                   if(down>=0){
 
                         $(".showMsgs").scrollTop(down); 
                   }
-                  $(this).find('.personalMessages').append('<li><b>'+$('#username').val().toUpperCase()+':</b>  '+msg+'</li>');
                   console.log({msg:msg,friendId:$(this).attr('data-attribute')});
                   socket.emit('personal message',{msg:msg,friendId:$(this).attr('data-attribute')});
             }
