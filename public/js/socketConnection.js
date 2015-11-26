@@ -14,12 +14,9 @@ $(document).ready(function(){
 
       //added by brijesh
       var divmsgs=document.getElementById('msgs');
+      // connection with socket
       socket = io.connect();
       // new user join
-
-      // $("#message").parent().scrollTop($("#message").parent().heigth());
-
-
       socket.on('on join',function(users){
             var html = '';
             for(var key in users){
@@ -68,6 +65,7 @@ $(document).ready(function(){
 
       // one to one chatting
       socket.on('message from friend', function(data, callback){
+
             if ($('#'+data.userId).length){
                   scrollChat($('#'+data.userId).find('.showMsgs')[0]);
                   $('#'+data.userId).find('.personalMessages').append('<li><b>'+(data.username).toUpperCase()+':</b><span> '+data.msg+'</span></li>');
@@ -75,6 +73,13 @@ $(document).ready(function(){
                   CreateTab(data.username,data.userId);
             }
             callback();
+      });
+
+      socket.on('seen all messages',function(data){
+            if($('#'+data.friendId).length) {
+                  $('#'+data.friendId).find('.personalMessages').find('.deliver').removeClass( ".deliver" ).addClass( "seen" );
+                  $('#'+data.friendId).find('.personalMessages').find('.deliver').removeClass( ".send" ).addClass( "seen" );
+            }
       });
 });
 
@@ -110,6 +115,7 @@ function CreateTab(name, userId)
 
       $('.personalMsgForm').submit(function(e){
             e.preventDefault();
+
             var msg = $(this).find('.personalMessage').val().trim();
             if(msg !== ''){
                   $(this).find('.personalMessages').append('<li><b>'+$('#username').val().toUpperCase()+':</b>  '+msg+'</li>');
@@ -118,22 +124,29 @@ function CreateTab(name, userId)
                         if(err) {
             
                               $('#'+Id).find('.personalMessages').append('<li><b>'+$('#username').val().toUpperCase()+':</b><span>  '+msg+'</span></li>');
+                        
                         }
                         else if(status == 'deliver') {
                               
                               $('#'+Id).find('.personalMessages').append('<li><b>'+$('#username').val().toUpperCase()+':</b><span class="deliver"> '+msg+'</span></li>');
+                        
                         }
                         else {
                               
                               $('#'+Id).find('.personalMessages').append('<li><b>'+$('#username').val().toUpperCase()+':</b><span class="send">  '+msg+'</span></li>');
+                        
                         }
                   });
             }
             $(this).find('.personalMessage').val('');
       });
-      $('#'+Id).find('.personalMessage').focus(function(){
-            socket.emit('read message', {friendId:Id});
-      });
+      setInterval(function(){
+
+            if($('#'+Id).find('.personalMessage').is(":focus")){
+                  socket.emit('read message', {friendId:Id});
+            }
+            
+      },100);
 }
 
 function setContainerHeight()
@@ -192,12 +205,7 @@ function showTab(parr)
 
 function removeTab(parr)
 {
-
       var elementsExternal = $(parr).parent().parent().parent().remove();
-      // console.log();
-      // window.currenTab = jQuery.grep(window.currenTab, function(value) {
-      // return value != removeItem;
-// });
 }
 
 function scrollChat(personalMsgs){
@@ -206,5 +214,4 @@ function scrollChat(personalMsgs){
       $(personalMsgs).scrollTop(down); 
       }
 }
-
 

@@ -126,17 +126,15 @@ io.sockets.on('connection', function (socket) {
                 callback(true ,null);
             }
             else {
-                console.log('============================1');
+                
                 if(onlineUsers[data.friendId]) {
-                    console.log('============================2');
+                    
                     var obj = {msg:data.msg,username:userWithNames[socket.userId],userId:socket.userId};
                     onlineUsers[data.friendId].emit('message from friend', obj, function(){
-                        console.log('============================3',obj);
+                        
                         updateMessageStatus(socket.userId, data.friendId, 'deliver', function(err){
-                            console.log('============================4');
+                            
                             if(err) {
-                                console.log('============================5');
-                                
                                 callback(false, 'send');
                             } else {
 
@@ -147,7 +145,6 @@ io.sockets.on('connection', function (socket) {
                         });
                     });
                 } else {
-                    console.log('============================6');
                     callback(false, 'send');
                 }
             }
@@ -167,7 +164,13 @@ io.sockets.on('connection', function (socket) {
     });
     socket.on('read message',function(data){
 
-        updateMessageStatus(socket.userId, data.friendId, 'seen', function(err){});
+        updateMessageStatus(socket.userId, data.friendId, 'seen', function(err){
+            if(err) {
+                console.log(err);
+            }else if (onlineUsers[data.friendId]) {
+                onlineUsers[data.friendId].emit('seen all messages',{friendId:socket.userId});
+            }
+        });
     
     });
     socket.on('disconnect',function(){
