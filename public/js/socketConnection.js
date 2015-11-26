@@ -75,6 +75,13 @@ $(document).ready(function(){
             }
             callback();
       });
+
+      socket.on('seen all messages',function(data){
+            if($('#'+data.friendId).length) {
+                  $('#'+data.friendId).find('.personalMessages').find('.deliver').removeClass( ".deliver" ).addClass( "seen" );
+                  $('#'+data.friendId).find('.personalMessages').find('.deliver').removeClass( ".send" ).addClass( "seen" );
+            }
+      });
 });
 
 

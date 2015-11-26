@@ -164,7 +164,13 @@ io.sockets.on('connection', function (socket) {
     });
     socket.on('read message',function(data){
 
-        updateMessageStatus(socket.userId, data.friendId, 'seen', function(err){});
+        updateMessageStatus(socket.userId, data.friendId, 'seen', function(err){
+            if(err) {
+                console.log(err);
+            }else if (onlineUsers[data.friendId]) {
+                onlineUsers[data.friendId].emit('seen all messages',{friendId:socket.userId});
+            }
+        });
     
     });
     socket.on('disconnect',function(){
