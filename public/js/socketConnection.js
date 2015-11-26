@@ -67,8 +67,8 @@ $(document).ready(function(){
       socket.on('message from friend', function(data, callback){
 
             if ($('#'+data.userId).length){
-                  scrollChat($('#'+data.userId).find('.showMsgs')[0]);
                   $('#'+data.userId).find('.personalMessages').append('<li><b>'+(data.username).toUpperCase()+':</b><span> '+data.msg+'</span></li>');
+                  scrollChat($('#'+data.userId).find('.showMsgs')[0]);
             }else{
                   CreateTab(data.username,data.userId);
             }
@@ -81,7 +81,7 @@ $(document).ready(function(){
                   $('#'+data.friendId).find('.personalMessages').find('.deliver').removeClass( ".send" ).addClass( "seen" );
             }
       });
-});
+});g
 
 
 function CreateTab(name, userId)
@@ -111,6 +111,7 @@ function CreateTab(name, userId)
                   }
             }
             $('#'+Id).find('.personalMessages').append(html);
+            scrollChat($('#'+Id).find('.showMsgs')[0]);
       });
 
       $('.personalMsgForm').submit(function(e){
