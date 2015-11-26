@@ -119,7 +119,6 @@ function CreateTab(name, userId)
             var msg = $(this).find('.personalMessage').val().trim();
             if(msg !== ''){
 
-                  $(this).find('.personalMessages').append('<li><b>'+$('#username').val().toUpperCase()+':</b>  '+msg+'</li>');
                   var personalMsgs=document.getElementsByClassName('showMsgs')[0];
                   var down=personalMsgs.scrollHeight-personalMsgs.clientHeight;
                   if(down>=0){
@@ -130,22 +129,29 @@ function CreateTab(name, userId)
                         if(err) {
             
                               $('#'+Id).find('.personalMessages').append('<li><b>'+$('#username').val().toUpperCase()+':</b><span>  '+msg+'</span></li>');
+                        
                         }
                         else if(status == 'deliver') {
                               
                               $('#'+Id).find('.personalMessages').append('<li><b>'+$('#username').val().toUpperCase()+':</b><span class="deliver"> '+msg+'</span></li>');
+                        
                         }
                         else {
                               
                               $('#'+Id).find('.personalMessages').append('<li><b>'+$('#username').val().toUpperCase()+':</b><span class="send">  '+msg+'</span></li>');
+                        
                         }
                   });
             }
             $(this).find('.personalMessage').val('');
       });
-      $('#'+Id).find('.personalMessage').focus(function(){
-            socket.emit('read message', {friendId:Id});
-      });
+      setInterval(function(){
+            
+            if($('#'+Id).find('.personalMessage').is(":focus")){
+                  socket.emit('read message', {friendId:Id});
+            }
+            
+      },100);
 }
 
 function setContainerHeight()
