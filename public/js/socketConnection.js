@@ -69,6 +69,7 @@ $(document).ready(function(){
       // one to one chatting
       socket.on('message from friend', function(data, callback){
             if ($('#'+data.userId).length){
+                  scrollChat($('#'+data.userId).find('.showMsgs')[0]);
                   $('#'+data.userId).find('.personalMessages').append('<li><b>'+(data.username).toUpperCase()+':</b><span> '+data.msg+'</span></li>');
             }else{
                   CreateTab(data.username,data.userId);
@@ -111,14 +112,8 @@ function CreateTab(name, userId)
             e.preventDefault();
             var msg = $(this).find('.personalMessage').val().trim();
             if(msg !== ''){
-
                   $(this).find('.personalMessages').append('<li><b>'+$('#username').val().toUpperCase()+':</b>  '+msg+'</li>');
-                  var personalMsgs=document.getElementsByClassName('showMsgs')[0];
-                  var down=personalMsgs.scrollHeight-personalMsgs.clientHeight;
-                  if(down>=0){
-
-                        $(".showMsgs").scrollTop(down); 
-                  }
+                  scrollChat($(this).find('.showMsgs')[0]);
                   socket.emit('personal message',{msg:msg,friendId:$(this).attr('data-attribute')},function(err, status){
                         if(err) {
             
@@ -172,6 +167,7 @@ function hideTab(parr)
             $(this).hide();
       })
 
+
 }
 
 function showTab(parr)
@@ -203,3 +199,12 @@ function removeTab(parr)
       // return value != removeItem;
 // });
 }
+
+function scrollChat(personalMsgs){
+      var down=personalMsgs.scrollHeight-personalMsgs.clientHeight;
+      if(down>=0){                       
+      $(personalMsgs).scrollTop(down); 
+      }
+}
+
+
