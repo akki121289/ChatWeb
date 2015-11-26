@@ -1,10 +1,10 @@
 var SocketIO = require('socket.io'),
 	Message = require('./models/message'),
 	PersonalMessage =require('./models/personalMessage'),
-	onlineUsers = {},
-    userWithNames = {},
+    onlineUsers = {}, // onlineUsers object contains all the connected socket with the key userId(e.i. niteshpsit) it should be unique
+    userWithNames = {}, // userWithNames object contains all the user name connected with the socket with userId (e.i. niteshpsit)
     io;
-
+// function for update the status of message send or not
 function updateMessageStatus(to , from , newStatus, callback){
     PersonalMessage.update({to:to, from:from , $or :[{status:'send'},{status:'deliver'}]},{
             $set: { "status": newStatus }
@@ -17,7 +17,7 @@ function updateMessageStatus(to , from , newStatus, callback){
             }
     });   
 }
-
+// single function handle all the chat connection
 function chatHandler(socket){
 	socket.emit('on join',userWithNames);
     socket.broadcast.emit('on join',userWithNames);
