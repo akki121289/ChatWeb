@@ -14,12 +14,9 @@ $(document).ready(function(){
 
       //added by brijesh
       var divmsgs=document.getElementById('msgs');
+      // connection with socket
       socket = io.connect();
       // new user join
-
-      // $("#message").parent().scrollTop($("#message").parent().heigth());
-
-
       socket.on('on join',function(users){
             var html = '';
             for(var key in users){
@@ -68,6 +65,7 @@ $(document).ready(function(){
 
       // one to one chatting
       socket.on('message from friend', function(data, callback){
+
             if ($('#'+data.userId).length){
                   $('#'+data.userId).find('.personalMessages').append('<li><b>'+(data.username).toUpperCase()+':</b><span> '+data.msg+'</span></li>');
             }else{
@@ -116,11 +114,12 @@ function CreateTab(name, userId)
 
       $('.personalMsgForm').submit(function(e){
             e.preventDefault();
+
             var msg = $(this).find('.personalMessage').val().trim();
             if(msg !== ''){
 
-                  var personalMsgs=document.getElementsByClassName('showMsgs')[0];
-                  var down=personalMsgs.scrollHeight-personalMsgs.clientHeight;
+                  var personalMsgs= $(this).find('.showMsgs')[0];
+                  var down= personalMsgs.scrollHeight-personalMsgs.clientHeight;
                   if(down>=0){
 
                         $(".showMsgs").scrollTop(down); 
@@ -146,7 +145,7 @@ function CreateTab(name, userId)
             $(this).find('.personalMessage').val('');
       });
       setInterval(function(){
-            
+
             if($('#'+Id).find('.personalMessage').is(":focus")){
                   socket.emit('read message', {friendId:Id});
             }
@@ -211,8 +210,4 @@ function removeTab(parr)
 {
 
       var elementsExternal = $(parr).parent().parent().parent().remove();
-      // console.log();
-      // window.currenTab = jQuery.grep(window.currenTab, function(value) {
-      // return value != removeItem;
-// });
 }
