@@ -9,6 +9,12 @@ var users = Schema({
 	gender : String,
 	country : String,
 	status: { type: Boolean, default: false },
+	personalChatUsers: [{
+		userId: String,
+    	name: String,
+    	email: String,
+    	personalChatRelId: String, 
+	}]
 });
 
 module.exports = mongoose.model('users', users);

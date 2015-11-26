@@ -16,22 +16,29 @@ $(document).ready(function(){
 
       socket.on('on join',function(users){
             var html = '';
-            for(var key in users){
-                  html += '<li id="'+key+'userList" class="list-group-item" onclick=CreateTab("'+users[key]+'","'+key+'") >' +users[key]+ '</li>';
-            }
+            // html += '<li id="'+users["key"]+'userList" class="list-group-item" onclick=CreateTab("'+users["username"]+'","'+users["key"]+'","'+users["email"]+'") >' +users["key"]+ '</li>';
+
+            users.forEach(function(element){
+                  html += '<li id="'+element.key+'userList" class="list-group-item" onclick=CreateTab("'+element.username+'","'+element.key+'","'+element.email+'") >' +element.username+ '</li>';
+            });
             $onlineUser.html(html);
+
+            // for(var key in users){
+            //       html += '<li id="'+key+'userList" class="list-group-item" onclick=CreateTab("'+users[key]+'","'+key+'","'+key+'") >' +users[key]+ '</li>';
+            // }
+            // $onlineUser.html(html);
       });
 
       socket.on('online user numbers',function(numbers){
             $totalonline.html(' '+numbers+' ');
       });
 
-      socket.emit('user join',{userId:$userId.val(),username:$username.val()});
+      socket.emit('user join',{userId:$userId.val(),username:$username.val(),email:$userId.val()});
       
       socket.on('online user',function(user){
             var userId = (user.userId).substr(0,(user.userId).indexOf('@'));
             var aa = user.username.toString();
-            $onlineUser.append("<li class=list-group-item onclick=\"CreateTab('"+aa+"' ,'"+user.userId+"')\" > "+user.username+ "</li>");
+            $onlineUser.append("<li class=list-group-item onclick=\"CreateTab('"+aa+"' ,'"+user.userId+"','"+user.userId+"')\" > "+user.username+ "</li>");
       });
 
       socket.on('remove user',function(user){
@@ -63,7 +70,7 @@ $(document).ready(function(){
                   $('#'+data.userId).find('.personalMessages').append('<li><b>'+(data.username).toUpperCase()+':</b>  '+data.msg+'</li>');
             }else{
                   alert('out');
-                  CreateTab(data.username,data.userId);
+                  CreateTab(data.username,data.userId,data.email);
                   $('#'+data.userId).find('.personalMessages').append('<li><b>'+(data.username).toUpperCase()+':</b>  '+data.msg+'</li>');
             }
       });
@@ -114,9 +121,10 @@ $(document).ready(function(){
 });
 
 
-function CreateTab(name,userId)
+function CreateTab(name,userId,emailId)
 {          
-      var Id;
+      var Id,email;
+      var email = emailId;  
       if(userId.indexOf('@') !== -1){
             Id = userId.substr(0,userId.indexOf('@'));
       }else{
@@ -129,15 +137,16 @@ function CreateTab(name,userId)
 
       // console.log(aa);
       if(jQuery.inArray(Id, aa) == -1)
-            $('#chat_tabs').append('<form data-attribute="'+Id+'" id="'+Id+'" class="personalMsgForm"><div class=col-sm-3 style="border:1px solid black;background:white;"><div> <div class=col-sm-12 style="background:green;">  <span class="glyphicon glyphicon-minus" onclick="hideTab(this)" style="float: right;" aria-hidden="true"></span>  <span class="glyphicon glyphicon-unchecked" style="float: right;" aria-hidden="true" onclick="showTab(this)" ></span>  <span class="glyphicon glyphicon-remove" style="float: right;" aria-hidden="true" onclick="removeTab(this)"></span> </div>    <div>'+ name +'</div><div class="hideable" style="width:100%;float:left;height:110px;overflow: scroll;"> <ul class="personalMessages" style="padding-bottom:40px"></ul></div></div><div class="hideable" ><input class="personalMessage" autocomplete="off" placeholder="Type message" class="form-control"><button>Send</button></div> </div></form>')
+            $('#chat_tabs').append('<form data-email = "'+ emailId+'" data-attribute="'+Id+'" id="'+Id+'" class="personalMsgForm"><div class=col-sm-3 style="border:1px solid black;background:white;"><div> <div class=col-sm-12 style="background:green;">  <span class="glyphicon glyphicon-minus" onclick="hideTab(this)" style="float: right;" aria-hidden="true"></span>  <span class="glyphicon glyphicon-unchecked" style="float: right;" aria-hidden="true" onclick="showTab(this)" ></span>  <span class="glyphicon glyphicon-remove" style="float: right;" aria-hidden="true" onclick="removeTab(this)"></span> </div>    <div>'+ name +'</div><div class="hideable" style="width:100%;float:left;height:110px;overflow: scroll;"> <ul class="personalMessages" style="padding-bottom:40px"></ul></div></div><div class="hideable" ><input class="personalMessage" autocomplete="off" placeholder="Type message" class="form-control"><button>Send</button></div> </div></form>')
 
       $('.personalMsgForm').submit(function(e){
             e.preventDefault();
             var msg = $(this).find('.personalMessage').val().trim();
             if(msg !== ''){
                   $(this).find('.personalMessages').append('<li><b>'+$('#username').val().toUpperCase()+':</b>  '+msg+'</li>');
-                  console.log({msg:msg,friendId:$(this).attr('data-attribute')});
-                  socket.emit('personal message',{msg:msg,friendId:$(this).attr('data-attribute')});
+                  // console.log("session data ==========",$.session.get('email'));
+                  console.log({msg:msg,friendId:$(this).attr('data-attribute'),email:$(this).attr('data-email')});
+                  socket.emit('personal message',{msg:msg,friendId:$(this).attr('data-attribute'),email:$(this).attr('data-email')});
             }
             $(this).find('.personalMessage').val('');
       });
@@ -163,13 +172,11 @@ function hideTab(parr)
       var elementsExternal = $(parr).parent().parent().parent().children();
       
       elementsInternal.each(function(index){
-            console.log($(this));
             if( $(this).hasClass( "hideable" ))
             $(this).hide();
       });
 
       elementsExternal.each(function(index){
-            console.log($(this));
             if( $(this).hasClass( "hideable" ))
             $(this).hide();
       })
@@ -182,13 +189,11 @@ function showTab(parr)
       var elementsExternal = $(parr).parent().parent().parent().children();
       
       elementsInternal.each(function(index){
-            console.log($(this));
             if( $(this).hasClass( "hideable" ))
             $(this).show();
       });
 
       elementsExternal.each(function(index){
-            console.log($(this));
             if( $(this).hasClass( "hideable" ))
             $(this).show();
       })
