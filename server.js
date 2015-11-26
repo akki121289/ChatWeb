@@ -3,6 +3,7 @@ var Hapi = require('hapi'),
     mongoose   = require('mongoose'),
     routes = require('./routes'),
     Message = require('./models/message'),
+    PersonalMessage =require('./models/personalMessage'),
     onlineUsers = {},
     userWithNames = {};
 
@@ -68,28 +69,19 @@ server.route({
 });
 
 routes(server);
-
+function updateMessageStatus(to , from , newStatus, callback){
+    PersonalMessage.update({to:to, from:from , $or :[{status:'send'},{status:'deliver'}]},{
+            $set: { "status": newStatus }
+        },function(err){
+            if(err){
+                callback(err);
+            }
+            else {
+                callback(null);
+            }
+    });   
+}
 io.sockets.on('connection', function (socket) {
-    /*//when recieving the data from the server, push the same message to client.
-    socket.on("clientMsg", function (data) {
-        //send the data to the current client requested/sent.
-        var msgData = data.msg.trim();
-        var index = msgData.indexOf(' ');
-        if(index !== -1){
-            var name = msgData.substr(0,index);
-            var msg = msgData.substr(index+1);
-            users[name].emit('serverMsg',{"name":socket.nickname, "msg":msg});
-        }else{
-            socket.emit("serverMsg", data);
-            //send the data to all the clients who are acessing the same site(localhost)
-            socket.broadcast.emit("serverMsg", data);
-        }
-    });
-
-    socket.on("sender", function (data) {
-        socket.emit("sender", data);
-        socket.broadcast.emit("sender", data);
-    });*/
     socket.emit('on join',userWithNames);
     socket.broadcast.emit('on join',userWithNames);
     socket.emit('online user numbers',(Object.keys(userWithNames)).length);
@@ -119,9 +111,64 @@ io.sockets.on('connection', function (socket) {
         socket.emit('new message',obj);
         socket.broadcast.emit('new message',obj);
     });
-    socket.on('personal message',function(data){
-        var obj = {msg:data.msg,username:userWithNames[socket.userId],userId:socket.userId};
-        onlineUsers[data.friendId].emit('message from friend',obj);
+    socket.on('personal message',function(data, callback){
+        
+        (new PersonalMessage({
+            from:socket.userId,
+            to:data.friendId,
+            message:data.msg,
+            name:userWithNames[socket.userId],
+            friend:userWithNames[data.friendId],
+            status: 'send'
+        })).save(function(err){
+            if(err) {
+                
+                callback(true ,null);
+            }
+            else {
+                console.log('============================1');
+                if(onlineUsers[data.friendId]) {
+                    console.log('============================2');
+                    var obj = {msg:data.msg,username:userWithNames[socket.userId],userId:socket.userId};
+                    onlineUsers[data.friendId].emit('message from friend', obj, function(){
+                        console.log('============================3',obj);
+                        updateMessageStatus(socket.userId, data.friendId, 'deliver', function(err){
+                            console.log('============================4');
+                            if(err) {
+                                console.log('============================5');
+                                
+                                callback(false, 'send');
+                            } else {
+
+                                callback(false, 'deliver');
+
+                            }
+                            
+                        });
+                    });
+                } else {
+                    console.log('============================6');
+                    callback(false, 'send');
+                }
+            }
+        });
+    });
+    socket.on('tab open',function(data){
+        updateMessageStatus(socket.userId, data.friendId, 'deliver', function(err){
+            if(err) {
+                console.log(err);
+                throw err;
+            } else{
+                PersonalMessage.find({$or: [{to:socket.userId, from:data.friendId},{to:data.friendId,from:socket.userId}]}).sort('-createdAt').limit(5).exec(function(err, messages){
+                    socket.emit('old message',messages);
+                });
+            }   
+        });
+    });
+    socket.on('read message',function(data){
+
+        updateMessageStatus(socket.userId, data.friendId, 'seen', function(err){});
+    
     });
     socket.on('disconnect',function(){
         delete onlineUsers[socket.userId];

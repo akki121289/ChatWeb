@@ -54,12 +54,12 @@ $(document).ready(function(){
 
       socket.on('load messages',function(msgs){
             for(var i = msgs.length-1; i>=0; i--){
-                  $messages.append('<li><b>'+(msgs[i].username).toUpperCase()+':</b> '+msgs[i].msg+'</li>');
+                  $messages.append('<li><b>'+(msgs[i].username).toUpperCase()+':</b><span> '+msgs[i].msg+'</span></li>');
             }
       });
 
       socket.on('new message',function(data){
-            $messages.append('<li><b>'+(data.username).toUpperCase()+':</b>  '+data.msg+'</li>');
+            $messages.append('<li><b>'+(data.username).toUpperCase()+':</b><span>  '+data.msg+'<span></li>');
             var down=divmsgs.scrollHeight-divmsgs.clientHeight;
             if(down>=0){
                   $("#msgs").scrollTop(down);
@@ -67,87 +67,51 @@ $(document).ready(function(){
       });
 
       // one to one chatting
-      socket.on('message from friend', function(data){
+      socket.on('message from friend', function(data, callback){
             if ($('#'+data.userId).length){
-                  alert('in');
-                  $('#'+data.userId).find('.personalMessages').append('<li><b>'+(data.username).toUpperCase()+':</b>  '+data.msg+'</li>');
+                  $('#'+data.userId).find('.personalMessages').append('<li><b>'+(data.username).toUpperCase()+':</b><span> '+data.msg+'</span></li>');
             }else{
-                  alert('out');
                   CreateTab(data.username,data.userId);
-                  $('#'+data.userId).find('.personalMessages').append('<li><b>'+(data.username).toUpperCase()+':</b>  '+data.msg+'</li>');
             }
+            callback();
       });
-      /*$personalMsgForm.submit(function(e){
-
-            e.preventDefault();
-            var msg = $(this).find('.personalMessage').val().trim();
-            if(msg !== ''){
-                  $(this).find('.personalMessages').append('<li><b>'+$username.val().toUpperCase()+':</b>  '+msg+'</li>');
-                  socket('personal message',{msg:msg,friendId:$(this).attr('data-attribute')});
-            }
-            $(this).find('.personalMessages').val('');
-
-      });
-      socket.on('message from friend',function(data){
-            
-      });*/
-
-      //When send button is clicked on, send the message to server
-      /*$("#send").click(function () {
-      //send to the server with person name and message
-      socket.emit("clientMsg", {
-      "name": name,
-      "msg": $("#msg").val()
-      });
-      $("#msg").val('');
-      });
-      //After sending message to the server, we'll have to wire up the event for it.
-      //We can do the following. Upon recievin the message print it to the message box
-      //that we've created in our html
-      socket.on("serverMsg", function (data) {
-      //Append the message from the server to the message box
-      $("#msgBox").append("<strong>" + data.name + "</strong>: " + data.msg + "<br/>");
-      });
-      $("#msg").on("keyup", function (event) {
-      socket.emit("sender", {
-      name: name
-      });
-      });
-      socket.on("sender", function (data) {
-      $("#status").html(data.name + " is typing");
-      setTimeout(function () {
-      $("#status").html('');
-      }, 3000);
-      });
-      });*/
-      
 });
 
 
-function CreateTab(name,userId)
+function CreateTab(name, userId)
 {          
       var Id;
-      if(userId.indexOf('@') !== -1){
+      if(userId.indexOf('@') !== -1) {
             Id = userId.substr(0,userId.indexOf('@'));
-      }else{
+      } else{
             Id = userId;
       }
      var aa = [];
       $('#chat_tabs').children().each(function(index){
-            // console.log($(this));
             aa.push($(this).attr('id'));
-            // window.currenTab = $(this).attr('id');
       });      
 
-      console.log(aa);
-      if(jQuery.inArray(Id, aa) == -1)
-      // if(jQuery.inArray(Id, window.currenTab) == -1)
-            $('#chat_tabs').append('<form data-attribute="'+Id+'" id="'+Id+'" class="personalMsgForm"><div class=col-sm-3 style="border:1px solid black;background:white;"><div> <div class=col-sm-12 style="background:green;">  <span class="glyphicon glyphicon-minus" onclick="hideTab(this)" style="float: right;" aria-hidden="true"></span>  <span class="glyphicon glyphicon-unchecked" style="float: right;" aria-hidden="true" onclick="showTab(this)" ></span>  <span class="glyphicon glyphicon-remove" style="float: right;" aria-hidden="true" onclick="removeTab(this)"></span> </div>    <div>'+ name +'</div><div class="showMsgs" style="width:100%;float:left;height:110px;overflow: scroll;"> <ul class="personalMessages" style="padding-bottom:40px"></ul></div></div><div class="hideable" ><input class="personalMessage" autocomplete="off" placeholder="Type message" class="form-control"><button>Send</button></div> </div></form>')
+      if(jQuery.inArray(Id, aa) == -1){
+            $('#chat_tabs').append('<form data-attribute="'+Id+'" id="'+Id+'" class="personalMsgForm"><div class=col-sm-3 style="border:1px solid black;background:white;"><div> <div class=col-sm-12 style="background:green;">  <span class="glyphicon glyphicon-minus" onclick="hideTab(this)" style="float: right;" aria-hidden="true"></span>  <span class="glyphicon glyphicon-unchecked" style="float: right;" aria-hidden="true" onclick="showTab(this)" ></span>  <span class="glyphicon glyphicon-remove" style="float: right;" aria-hidden="true" onclick="removeTab(this)"></span> </div>    <div>'+ name +'</div><div class="showMsgs hideable" style="width:100%;float:left;height:110px;overflow: scroll;"> <ul class="personalMessages" style="padding-bottom:40px"></ul></div></div><div class="hideable" ><input class="personalMessage" autocomplete="off" placeholder="Type message" class="form-control"><button>Send</button></div> </div></form>')
+            socket.emit('tab open',{friendId:Id});
+      }
+      socket.on('old message',function(data){
+            var html = '';
+            for(var i =data.length -1 ; i>= 0; i--){
+                  if(data[i].from === Id) {
+                        html += '<li><b>'+(data[i].name).toUpperCase()+':</b> <span class=""> '+data[i].message+'</span></li>'
+                  } else {
+                        html += '<li><b>'+(data[i].name).toUpperCase()+':</b> <span class="'+data[i].status+'"> '+data[i].message+'</span></li>'
+                  }
+            }
+            $('#'+Id).find('.personalMessages').append(html);
+      });
 
       $('.personalMsgForm').submit(function(e){
             e.preventDefault();
             var msg = $(this).find('.personalMessage').val().trim();
             if(msg !== ''){
+
                   $(this).find('.personalMessages').append('<li><b>'+$('#username').val().toUpperCase()+':</b>  '+msg+'</li>');
                   var personalMsgs=document.getElementsByClassName('showMsgs')[0];
                   var down=personalMsgs.scrollHeight-personalMsgs.clientHeight;
@@ -155,10 +119,25 @@ function CreateTab(name,userId)
 
                         $(".showMsgs").scrollTop(down); 
                   }
-                  console.log({msg:msg,friendId:$(this).attr('data-attribute')});
-                  socket.emit('personal message',{msg:msg,friendId:$(this).attr('data-attribute')});
+                  socket.emit('personal message',{msg:msg,friendId:$(this).attr('data-attribute')},function(err, status){
+                        if(err) {
+            
+                              $('#'+Id).find('.personalMessages').append('<li><b>'+$('#username').val().toUpperCase()+':</b><span>  '+msg+'</span></li>');
+                        }
+                        else if(status == 'deliver') {
+                              
+                              $('#'+Id).find('.personalMessages').append('<li><b>'+$('#username').val().toUpperCase()+':</b><span class="deliver"> '+msg+'</span></li>');
+                        }
+                        else {
+                              
+                              $('#'+Id).find('.personalMessages').append('<li><b>'+$('#username').val().toUpperCase()+':</b><span class="send">  '+msg+'</span></li>');
+                        }
+                  });
             }
             $(this).find('.personalMessage').val('');
+      });
+      $('#'+Id).find('.personalMessage').focus(function(){
+            socket.emit('read message', {friendId:Id});
       });
 }
 
