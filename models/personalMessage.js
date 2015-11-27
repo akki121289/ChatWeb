@@ -8,7 +8,7 @@ var personalMessage = Schema({
 	friend:String,
 	to: String,
 	message: String,
-	status:{type:String, default:'send'},
+	status:{ type:String, default:'send' },
 	createdAt : {type:String, default:Date.now}
 });
 // status : 'send' : when message be send but not deliver
