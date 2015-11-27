@@ -2,6 +2,7 @@ $(document).ready(function(){
       
       // setContainerHeight();      
       var $username = $('#username');
+      var $_id = $('#_id');
       var $onlineUser = $('#onlineUser');
       var $msgForm = $('#msgForm');
       var $userId = $('#userId');
@@ -29,12 +30,12 @@ $(document).ready(function(){
             $totalonline.html(' '+numbers+' ');
       });
 
-      socket.emit('user join',{userId:$userId.val(),username:$username.val()});
+      socket.emit('user join',{ _id:$_id.val(), userId:$userId.val(), username:$username.val() });
       
       socket.on('online user',function(user){
             var userId = (user.userId).substr(0,(user.userId).indexOf('@'));
             var aa = user.username.toString();
-            $onlineUser.append("<li class=list-group-item onclick=\"CreateTab('"+aa+"' ,'"+user.userId+"')\" > "+user.username+ "</li>");
+            $onlineUser.append('<li id="'+user._id+'" class=list-group-item onclick=\"CreateTab('"+aa+"' ,'"+user.userId+"')\" > "+user.username+ "</li>');
       });
 
       socket.on('remove user',function(user){

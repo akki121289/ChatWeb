@@ -17,26 +17,33 @@ function updateMessageStatus(to , from , newStatus, callback){
             }
     });   
 }
+
 // single function handle all the chat connection
 function chatHandler(socket){
 	socket.emit('on join',userWithNames);
     socket.broadcast.emit('on join',userWithNames);
-    socket.emit('online user numbers',(Object.keys(userWithNames)).length);
-    socket.broadcast.emit('online user numbers',(Object.keys(userWithNames)).length);
+    socket.emit('online user numbers',(Object.keys(userWithNames)).length/2);
+    socket.broadcast.emit('online user numbers',(Object.keys(userWithNames)).length/2);
     socket.on("user join",function(name){
+
             var userId = (name.userId).substr(0,(name.userId).indexOf('@'));
-            socket.userId = userId;
+            socket[userId] = userId;
+            socket['uniqueId'] = name._id;
             onlineUsers[userId] = socket;
+            onlineUsers[name._id] = socket;
             userWithNames[userId] = name.username;
+            userWithNames[name._id] = name.username;
             
             socket.emit("online user", name);
             socket.broadcast.emit('online user',name);
-            socket.emit('online user numbers',(Object.keys(userWithNames)).length);
-            socket.broadcast.emit('online user numbers',(Object.keys(userWithNames)).length);
+            socket.emit('online user numbers',(Object.keys(userWithNames)).length/2);
+            socket.broadcast.emit('online user numbers',(Object.keys(userWithNames)).length/2);
+    
     });
     Message.find({}).sort('-createdAt').limit(10).exec(function(err, data){
         socket.emit('load messages',data);
     });
+    
     socket.on('message',function(data){
         var obj = {msg:data.msg,username:(userWithNames[socket.userId])};
         var message = new Message(obj);
