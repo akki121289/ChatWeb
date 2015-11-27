@@ -36,7 +36,7 @@ $(document).ready(function(){
             if (user._id !== $_id.val())
                   $onlineUser.append("<li id='"+user._id+"userList' class=list-group-item onclick=\"CreateTab('"+user.username+"' ,'"+user._id+"')\" > "+user.username+ "</li>");
       });
-      // updating the list of online user when any user goes off line
+      // updating the list of online user when any user goes offline
       socket.on('remove user',function(_id){
             $('#'+_id+'userList').remove();
       });
