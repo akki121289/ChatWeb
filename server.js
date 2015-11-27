@@ -149,26 +149,58 @@ io.sockets.on('connection', function (socket) {
             {   
                 var personalChatUsers = finddata[0].personalChatUsers;
                 
+                var personalChatExist = 1;   
                 personalChatUsers.forEach(function(ele){
                     if(data.email == ele.email)
                     {   
-                            PersonalChat.update(
-                            { _id : ele.personalChatRelId },
-                            {$push: {"messages": { msg: data.msg}}},
+                        personalChatExist = 0;
+                        PersonalChat.update(
+                        { _id : ele.personalChatRelId },
+                        {$push: {"messages": { msg: data.msg , to : ele.name , from : userWithNames[socket.userId] }}},
                             function(err, model) {
                                 console.log(err);
                             }
                         );                        
                     }
-
                 });
+
+                if(personalChatExist)
+                {   
+                    Users.find({ email : data.email }).exec(function(err,frienddata){
+                        relatedIds = [{name : finddata[0].username, userId : finddata[0]._id ,email : finddata[0].email},{name : frienddata[0].username, userId : frienddata[0]._id, email : frienddata[0].email}]
+                        var chatObj = {messages:{ msg: data.msg , to : finddata[0].username , from : userWithNames[socket.userId] },relatedIds:relatedIds};
+                        personalChat = new PersonalChat(chatObj);   
+                        personalChat.save(function(err,savedata){
+                            if(err)
+                            {
+                                console.log('message not save in db');
+                            }
+                            var userList = savedata.relatedIds; 
+                        
+                           Users.update({ _id : userList[0].userId },
+                           {$push : { "personalChatUsers" : { name : userList[1].name , personalChatRelId : savedata._id,userId : userList[1].userId, email : userList[1].email }} } ,function(err,dt){
+                            if(err)
+                                console.log("there is something wrong err");
+                           });
+
+                           Users.update({ _id : userList[1].userId },
+                           {$push : { personalChatUsers : { name : userList[0].name , personalChatRelId : savedata._id , userId : userList[0].userId, email : userList[0].email }} } ,function(err,dt){
+                            if(err)
+                                console.log("there is something wrong err");
+                           });
+                            
+                        });
+
+                    });
+                       
+                }
 
             }
             else
             {   
                 Users.find({ email : data.email }).exec(function(err,frienddata){
                 relatedIds = [{name : finddata[0].username, userId : finddata[0]._id ,email : finddata[0].email},{name : frienddata[0].username, userId : frienddata[0]._id, email : frienddata[0].email}]
-                var chatObj = {messages:{ msg: data.msg},relatedIds:relatedIds};
+                var chatObj = {messages:{ msg: data.msg , to : finddata[0].username , from : userWithNames[socket.userId] },relatedIds:relatedIds};
                 personalChat = new PersonalChat(chatObj);   
                 personalChat.save(function(err,savedata){
                     if(err)
@@ -176,16 +208,19 @@ io.sockets.on('connection', function (socket) {
                         console.log('message not save in db');
                     }
                     var userList = savedata.relatedIds; 
-                    
-                       Users.update({ _id : userList[0].userId },{ personalChatUsers : { name : userList[1].name , personalChatRelId : savedata._id,userId : userList[1].userId, email : userList[1].email }}).exec(function(err,dt){
+                        Users.update({ _id : userList[0].userId },
+                       {$push : { "personalChatUsers" : { name : userList[1].name , personalChatRelId : savedata._id,userId : userList[1].userId, email : userList[1].email }} } ,function(err,dt){
                         if(err)
                             console.log("there is something wrong err");
                        });
 
-                       Users.update({ _id : userList[1].userId },{ personalChatUsers : { name : userList[0].name , personalChatRelId : savedata._id , userId : userList[0].userId, email : userList[0].email }}).exec(function(err,dt){
+                       Users.update({ _id : userList[1].userId },
+                       {$push : { personalChatUsers : { name : userList[0].name , personalChatRelId : savedata._id , userId : userList[0].userId, email : userList[0].email }} } ,function(err,dt){
                         if(err)
                             console.log("there is something wrong err");
                        });
+
+
                         
                     });
                 });

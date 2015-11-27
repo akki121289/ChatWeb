@@ -19,7 +19,8 @@ $(document).ready(function(){
             // html += '<li id="'+users["key"]+'userList" class="list-group-item" onclick=CreateTab("'+users["username"]+'","'+users["key"]+'","'+users["email"]+'") >' +users["key"]+ '</li>';
 
             users.forEach(function(element){
-                  html += '<li id="'+element.key+'userList" class="list-group-item" onclick=CreateTab("'+element.username+'","'+element.key+'","'+element.email+'") >' +element.username+ '</li>';
+                  // html += '<li id="'+element.key+'userList" class="list-group-item" onclick=\"CreateTab("'+element.username+'","'+element.key+'","'+element.email+'") >' +element.username+ '</li>';
+                  html += "<li id='"+element.key+ "userList' class=list-group-item onclick=\"CreateTab('"+element.username+"' ,'"+element.key+"','"+element.email+"')\" > "+element.username+ "</li>";
             });
             $onlineUser.html(html);
 

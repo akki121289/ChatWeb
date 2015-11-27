@@ -15,7 +15,9 @@ var personalChat = Schema({
   {
     title: {type: String, default: 'message'},
     date : { type: Date, default: Date.now },
-    msg: {type: String, required: true}
+    msg: {type: String, required: true},
+    to : String,
+    from : String
   }]
 });
 
