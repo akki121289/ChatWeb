@@ -81,7 +81,7 @@ $(document).ready(function(){
                   $('#'+data.friendId).find('.personalMessages').find('.deliver').removeClass( ".send" ).addClass( "seen" );
             }
       });
-});g
+});
 
 
 function CreateTab(name, userId)

@@ -53,7 +53,7 @@ module.exports = function(server){
 	    path: '/logout',
 	    handler: function (request, reply) {
 	    	request.session.reset();
-	    	reply("logout");
+	    	reply.view('logout');
 	    }
 	});
 
