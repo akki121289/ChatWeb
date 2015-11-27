@@ -69,6 +69,7 @@ $(document).ready(function(){
 
             if ($('#'+data.userId).length){
                   $('#'+data.userId).find('.personalMessages').append('<li><b>'+(data.username).toUpperCase()+':</b><span> '+data.msg+'</span></li>');
+                  scrollChat($('#'+data.userId).find('.showMsgs')[0]);
             }else{
                   CreateTab(data.username,data.userId);
             }
@@ -111,6 +112,7 @@ function CreateTab(name, userId)
                   }
             }
             $('#'+Id).find('.personalMessages').append(html);
+            scrollChat($('#'+Id).find('.showMsgs')[0]);
       });
 
       $('.personalMsgForm').submit(function(e){
@@ -118,13 +120,8 @@ function CreateTab(name, userId)
 
             var msg = $(this).find('.personalMessage').val().trim();
             if(msg !== ''){
-
-                  var personalMsgs= $(this).find('.showMsgs')[0];
-                  var down= personalMsgs.scrollHeight-personalMsgs.clientHeight;
-                  if(down>=0){
-
-                        $(".showMsgs").scrollTop(down); 
-                  }
+                  $(this).find('.personalMessages').append('<li><b>'+$('#username').val().toUpperCase()+':</b>  '+msg+'</li>');
+                  scrollChat($(this).find('.showMsgs')[0]);
                   socket.emit('personal message',{msg:msg,friendId:$(this).attr('data-attribute')},function(err, status){
                         if(err) {
             
@@ -185,6 +182,7 @@ function hideTab(parr)
             $(this).hide();
       })
 
+
 }
 
 function showTab(parr)
@@ -209,6 +207,13 @@ function showTab(parr)
 
 function removeTab(parr)
 {
-
       var elementsExternal = $(parr).parent().parent().parent().remove();
 }
+
+function scrollChat(personalMsgs){
+      var down=personalMsgs.scrollHeight-personalMsgs.clientHeight;
+      if(down>=0){                       
+      $(personalMsgs).scrollTop(down); 
+      }
+}
+
