@@ -21,7 +21,7 @@ $(document).ready(function(){
       socket.on('on join',function(users){
             var html = '';
             for(var key in users){
-                  html += '<li id="'+key+'userList" class="list-group-item" onclick=CreateTab("'+users[key]+'","'+key+'") >' +users[key]+ '</li>';
+                  html += '<li id="'+key+'" class="list-group-item" onclick=CreateTab("'+users[key]+'","'+key+'") >' +users[key]+ '</li>';
             }
             $onlineUser.html(html);
       });
@@ -35,11 +35,12 @@ $(document).ready(function(){
       socket.on('online user',function(user){
             var userId = (user.userId).substr(0,(user.userId).indexOf('@'));
             var aa = user.username.toString();
-            $onlineUser.append('<li id="'+user._id+'" class=list-group-item onclick=\"CreateTab('"+aa+"' ,'"+user.userId+"')\" > "+user.username+ "</li>');
+            $onlineUser.append("<li id='"+user._id+"' class=list-group-item onclick=\"CreateTab('"+aa+"' ,'"+user.userId+"')\" > "+user.username+ "</li>");
       });
 
       socket.on('remove user',function(user){
-            $('#'+user+'userList').remove();
+            $('#'+user.userId).remove();
+            $('#'+user._id).remove();
       });
       // group chatting
       $msgForm.submit(function(e){

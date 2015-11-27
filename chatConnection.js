@@ -27,7 +27,7 @@ function chatHandler(socket){
     socket.on("user join",function(name){
 
             var userId = (name.userId).substr(0,(name.userId).indexOf('@'));
-            socket[userId] = userId;
+            socket['userId'] = userId;
             socket['uniqueId'] = name._id;
             onlineUsers[userId] = socket;
             onlineUsers[name._id] = socket;
@@ -45,7 +45,7 @@ function chatHandler(socket){
     });
     
     socket.on('message',function(data){
-        var obj = {msg:data.msg,username:(userWithNames[socket.userId])};
+        var obj = {msg:data.msg,username:userWithNames[socket.userId]};
         var message = new Message(obj);
         message.save(function(err){
             if (err) {
@@ -120,7 +120,7 @@ function chatHandler(socket){
     socket.on('disconnect',function(){
         delete onlineUsers[socket.userId];
         delete userWithNames[socket.userId];
-        socket.emit("remove user", socket.userId);
+        socket.emit("remove user", { _id:socket.uniqueId, userId:socket.userId});
         socket.broadcast.emit('remove user',socket.userId);
         socket.emit('online user numbers',(Object.keys(userWithNames)).length);
         socket.broadcast.emit('online user numbers',(Object.keys(userWithNames)).length);
