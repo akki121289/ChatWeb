@@ -1,55 +1,27 @@
 var Hapi = require('hapi'),
-    Good = require('good'),
     mongoose   = require('mongoose'),
-    routes = require('./routes');
-
-mongoose.connect('mongodb://localhost/chatweb');
-
+    routes = require('./routes'),
+    config = require('./config/development');
+// mongodb connection
+mongoose.connect(config.mongodbAddress);
+// creating server
 var server = new Hapi.Server();
-server.connection({ port: 3000});
-
+// defining host and port
+server.connection({ host: config.address, port: config.port });
 // plugins register
-server.register({
-    register: Good,
-    options: {
-        reporters: [{
-            reporter: require('good-console'),
-            events: {
-                response: '*',
-                log: '*'
-            }
-        }]
-    }
-}, function (err) {
+// consoling activity
+server.register(config.plugins.good, function (err) {
     if (err) {
         throw err; // something bad happened loading the plugin
     }
 });
-
-
-var options = {
-    storeBlank: true,
-    cookieOptions: {
-        password: 'password',
-        isSecure: false
-    }
-};
-
-server.register({
-    register: require('yar'),
-    options: options
-}, function (err) { });
-
-
-// view handler
-server.views({
-    engines: {
-        jade: require('jade')
-    },
-    relativeTo: __dirname,
-    path: 'views'
+// yar module for session handling
+server.register(config.plugins.yar, function (err) {
+    if (err)
+        throw err;
 });
-
+// view handler
+server.views(config.plugins.jade);
 // serving static files
 server.route({
     path: "/public/{path*}",
@@ -62,9 +34,9 @@ server.route({
         }
     }
 });
-
+// defining routes
 routes(server);
-
+// socket connect
 require('./chatConnection').init(server.listener);
 server.start(function () {
         server.log('info', 'Server running at: ' + server.info.uri);
