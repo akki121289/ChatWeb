@@ -64,7 +64,7 @@ module.exports = function(server){
 
 	    	console.log("request.session.get('email')",request.session.get('email'));
 	    	if(request.session.get('email') != undefined ){
-	        	reply.view('login',{msg : "User is already login ,Please logout that first"});
+	        	reply.view('login',{loginTryMsg : "User is already login ,Please logout that first"});
 
 	        }
         	else
