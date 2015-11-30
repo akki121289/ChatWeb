@@ -7,7 +7,7 @@ mongoose.connect(config.mongodbAddress);
 // creating server
 var server = new Hapi.Server();
 // defining host and port
-server.connection({ host: config.address, port: config.port });
+server.connection({ port: config.port });
 // plugins register
 // consoling activity
 server.register(config.plugins.good, function (err) {

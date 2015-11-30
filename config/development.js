@@ -1,5 +1,5 @@
 module.exports = {
-	address: '127.0.0.1',
+	address: 'localhost',
 	port: '3000',
 	mongodbAddress: 'mongodb://localhost/chatweb',
 	plugins: {

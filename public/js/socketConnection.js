@@ -118,20 +118,21 @@ function CreateTab(name, uniqueId)
             if(msg !== ''){
                   
                   //scrollChat($(this).find('.showMsgs')[0]);
+                  var currentForm = $(this);
                   socket.emit('personal message',{msg:msg,friendId:$(this).attr('data-attribute')},function(err, status){
                         if(err) {
             
-                              $('#'+uniqueId).find('.personalMessages').append('<li><b>'+$('#username').val().toUpperCase()+':</b><span>  '+msg+'</span></li>');
+                              currentForm.find('.personalMessages').append('<li><b>'+$('#username').val().toUpperCase()+':</b><span>  '+msg+'</span></li>');
                         
                         }
                         else if(status == 'deliver') {
                               
-                              $('#'+uniqueId).find('.personalMessages').append('<li><b>'+$('#username').val().toUpperCase()+':</b><span class="deliver"> '+msg+'</span></li>');
+                              currentForm.find('.personalMessages').append('<li><b>'+$('#username').val().toUpperCase()+':</b><span class="deliver"> '+msg+'</span></li>');
                         
                         }
                         else {
                               
-                              $('#'+uniqueId).find('.personalMessages').append('<li><b>'+$('#username').val().toUpperCase()+':</b><span class="send">  '+msg+'</span></li>');
+                              currentForm.find('.personalMessages').append('<li><b>'+$('#username').val().toUpperCase()+':</b><span class="send">  '+msg+'</span></li>');
                         
                         }
                   });
