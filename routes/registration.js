@@ -61,23 +61,34 @@ module.exports = function(server){
 	    method: 'POST',
 	    path: '/login',
 	    handler: function (request, reply) {
-	    	Users.findOne({email:request.payload.username},function(err, data){
-	    		if(err){
-	    			reply("some thing went wrong");
-	    		}else if(data && bcrypt.compareSync(request.payload.password, data.password)){
-	    			
-	    			request.session.set('_id',data._id);	   	    			 				    							
-					request.session.set('email',request.payload.username);
-					Users.update({"email" : request.payload.username }, { $set: { "status": true }}).exec();
-					Users.findOne({"email" : request.payload.username },function(err ,user){
-						request.session.set('username',user.username);
-						reply.redirect('/userlist');
-					});
-	    			
-	    		}else{
-	    			reply("user not found");
-	    		}
-	    	});
+
+	    	console.log("request.session.get('email')",request.session.get('email'));
+	    	if(request.session.get('email') != undefined ){
+	        	reply.view('login',{loginTryMsg : "User is already login ,Please logout that first"});
+
+	        }
+        	else
+        	{
+        		Users.findOne({email:request.payload.username},function(err, data){
+		    		if(err){
+		    			reply("some thing went wrong");
+		    		}else if(data && bcrypt.compareSync(request.payload.password, data.password)){
+		    			
+		    			request.session.set('_id',data._id);	   	    			 				    							
+						request.session.set('email',request.payload.username);
+						Users.update({"email" : request.payload.username }, { $set: { "status": true }}).exec();
+						Users.findOne({"email" : request.payload.username },function(err ,user){
+							request.session.set('username',user.username);
+							reply.redirect('/userlist');
+						});
+		    			
+		    		}else{
+		    			reply("user not found");
+		    		}
+		    	});
+
+        	}
+	    	
 	    }
 	});
 
