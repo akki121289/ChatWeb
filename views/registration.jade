@@ -9,7 +9,7 @@ html(lang='en')
     .container
       .row.jumbotron.text-center
         .panel-group
-          .panel.panel-primary
+          .panel.panel-default
             .panel-heading
               h1 Registration
             .panel-body
@@ -45,11 +45,13 @@ html(lang='en')
                         input(type='radio', name='gender', value='female')
                         | Female
                 .form-group
-                  .col-sm-10
+                  .col-sm-12
                     .checkbox
                       label
                         input(type='checkbox')
                         |  Remember me
                 .form-group
-                  .col-sm-10
-                    button.btn.btn-primary(type='submit') Register
+                  .col-sm-12
+                    button.btn.btn-primary.btn-lg(type='submit') Register
+              a(href='/login')
+                button.btn.btn-primary.btn-md Return to LogIn Page
