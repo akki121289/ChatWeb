@@ -30,7 +30,7 @@ module.exports = function(server){
 	    path: '/userlist',
 	    handler: function (request, reply) {
 	    	if(request.session.get('email')){
-	        	reply.view('userlist',{email:request.session.get('email'),username:request.session.get('username')});
+	        	reply.view('userlist',{ _id:request.session.get('_id'), email:request.session.get('email'), username:request.session.get('username')});
 	    	}else{
 	    		reply.redirect('/login');
 	    	}
@@ -64,11 +64,12 @@ module.exports = function(server){
 	    	Users.findOne({email:request.payload.username},function(err, data){
 	    		if(err){
 	    			reply("some thing went wrong");
-	    		}else if(data && bcrypt.compareSync(request.payload.password, data.password)){	   	    			 				    							
+	    		}else if(data && bcrypt.compareSync(request.payload.password, data.password)){
+	    			
+	    			request.session.set('_id',data._id);	   	    			 				    							
 					request.session.set('email',request.payload.username);
 					Users.update({"email" : request.payload.username }, { $set: { "status": true }}).exec();
 					Users.findOne({"email" : request.payload.username },function(err ,user){
-						console.log(user);
 						request.session.set('username',user.username);
 						reply.redirect('/userlist');
 					});
