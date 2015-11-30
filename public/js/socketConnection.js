@@ -98,7 +98,7 @@ function CreateTab(name, userId)
       });      
 
       if(jQuery.inArray(Id, aa) == -1){
-            $('#chat_tabs').append('<form data-attribute="'+Id+'" id="'+Id+'" class="personalMsgForm"><div class=col-sm-3 style="border:1px solid black;background:white;"><div> <div class=col-sm-12 style="background:green;">  <span class="glyphicon glyphicon-minus" onclick="hideTab(this)" style="float: right;" aria-hidden="true"></span>  <span class="glyphicon glyphicon-unchecked" style="float: right;" aria-hidden="true" onclick="showTab(this)" ></span>  <span class="glyphicon glyphicon-remove" style="float: right;" aria-hidden="true" onclick="removeTab(this)"></span> </div>    <div>'+ name +'</div><div class="showMsgs hideable" style="width:100%;float:left;height:110px;overflow: scroll;"> <ul class="personalMessages" style="padding-bottom:40px"></ul></div></div><div class="hideable" ><input class="personalMessage" autocomplete="off" placeholder="Type message" class="form-control"><button>Send</button></div> </div></form>')
+            $('#chat_tabs').append('<div class="col-sm-3 closeChatBox" style="border:2px solid black;background:white;"><div class="row chatBoxTitleBar"><div class="panel panel-primary" style="margin-bottom:auto"><div class="panel-heading">'+name+'<ul class="list-inline" align="right" style="margin-top: -20px;"><li><span class="closeBox glyphicon glyphicon-remove" aria-hidden="true"></span></li><li><span class="glyphicon glyphicon-unchecked maximize" aria-hidden="true"></span></li><li><span class="glyphicon glyphicon-minus minimize" aria-hidden="true"></span></li></ul></div></div></div><div class="row minimizeChatBox"><form class="form-inline personalMsgForm" role="form" align="center" data-attribute="'+Id+'" id="'+Id+'"><div class="showMsgs" style="width:100%;float:left;height:110px;overflow: scroll;"> <ul class="personalMessages" style="padding-bottom:40px"></ul></div><div class="form-group"><input class="form-control personalMessage" autocomplete="off" placeholder="Type message"></div><button class="btn btn-default">Send</button></form></div></div>');
             socket.emit('tab open',{friendId:Id});
       }
       socket.on('old message',function(data){
@@ -148,6 +148,16 @@ function CreateTab(name, userId)
             }
             
       },100);
+
+      $('.minimize').click(function(){
+            $(this).closest('.closeChatBox').find('.minimizeChatBox').hide();
+      });
+      $('.maximize').click(function(){
+            $(this).closest('.closeChatBox').find('.minimizeChatBox').show();
+      });
+      $('.closeBox').click(function(){
+            $(this).closest('.closeChatBox').remove();
+      });
 }
 
 function setContainerHeight()
@@ -215,4 +225,8 @@ function scrollChat(personalMsgs){
       $(personalMsgs).scrollTop(down); 
       }
 }
+
+
+
+
 
