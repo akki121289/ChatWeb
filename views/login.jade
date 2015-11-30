@@ -1,7 +1,7 @@
 doctype html
 html(lang='en')
   head
-    title Login Form
+    title Chatweb Login
     link(rel='stylesheet', href='/public/css/bootstrap.css')
     script(src='http://code.jquery.com/jquery-1.10.2.js')
     script(src='/public/js/bootstrap.js')
@@ -20,20 +20,38 @@ html(lang='en')
             .col-sm-6
               form.form-horizontal(action='/login', method='POST', role='form')
                 .form-group
-                  label.col-sm-2.control-label(for='inputEmail3') Email:
-                  .col-sm-10
+                  label.col-sm-3.control-label(for='inputEmail3') Email:
+                  .col-sm-9
                     input#inputEmail3.form-control(type='email', name='username', placeholder='Email')
                 .form-group
-                  label.col-sm-2.control-label(for='inputPassword3') Password:
-                  .col-sm-10
+                  label.col-sm-3.control-label(for='inputPassword3') Password:
+                  .col-sm-9
                     input#inputPassword3.form-control(type='password', placeholder='Password', name='password')
                 .form-group
-                  .col-sm-offset-2.col-sm-10
+                  .col-sm-6
                     .checkbox
                       label
                         input(type='checkbox')
                         |  Remember me
+                  .col-sm-6
+                    .checkbox
+                      label
+                        a(href='') Forgot your password ?
                 .form-group
-                  .col-sm-offset-2.col-sm-10
-                    button.btn.btn-default(type='submit') Sign in
+                  .col-sm-12
+                    button.btn.btn-primary(type='submit') Sign in
+                .form-group
+                  .col-sm-6
+                    div
+                      a(href='#')
+                        img.img-responsive(src='/public/images/sign-in-with-facebook.png')
+                  .col-sm-6
+                    div
+                      a(href='#')
+                        img.img-responsive(src='/public/images/sign-in-with-google.png')
+                .form-group
+                  .col-sm-12
+                    label
+                      | Don't have an account? 
+                      a(href='/registration') Sign Up
             .col-sm-3
