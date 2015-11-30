@@ -22,11 +22,11 @@ html(lang='en')
           b
             | # of Online Users: 
             span#totalonline
-        ul#onlineUser.list-group
+        ul#onlineUser.list-group(style='list-style-type:none;')
       .col-sm-7(style='border:1px solid black;')
         div
           div#msgs(style='width:100%;float:left;height:220px;overflow: scroll;')
-            ul#messages(style='padding-bottom:40px')
+            ul#messages(style='padding-bottom:40px;list-style-type:none;')
         div
           form(action='' id="msgForm")
             input#message.form-control(autocomplete='off', placeholder='Type message')
