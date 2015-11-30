@@ -67,7 +67,7 @@ $(document).ready(function(){
       // when any friend send the personal message
       socket.on('message from friend', function(data, callback){
             if ($('#'+data._id).length){
-                  $('#'+data._id).find('.personalMessages').append('<li style="margin: 10px 0;"><b>'+(data.username).toUpperCase()+':</b><div style="border-radius: 0px 15px 15px 15px;background: #22C7C4;width:70%;height:110%" > '+data.msg+'</div></li>');
+                  $('#'+data._id).find('.personalMessages').append('<li style="margin: 10px 0;"><div style="border-radius: 0px 15px 15px 15px;background: #22C7C4;width:70%;height:110%" > '+data.msg+'</div></li>');
                   scrollChat($('#'+data._id).find('.showMsgs')[0]);
             }else{
                   CreateTab(data.username,data._id);
@@ -86,24 +86,19 @@ $(document).ready(function(){
 
 function CreateTab(name, uniqueId)
 {          
-      
-     var aa = [];
-      $('#chat_tabs').children().each(function(index){
-            aa.push($(this).attr('id'));
-      });      
 
-
-      if(jQuery.inArray(uniqueId, aa) == -1){
-            $('#chat_tabs').append('<div class="col-sm-3 closeChatBox" style="border:2px solid black;background:white;"><div class="row chatBoxTitleBar"><div class="panel panel-primary" style="margin-bottom:auto"><div class="panel-heading">'+name+'<ul class="list-inline" align="right" style="margin-top: -20px;"><li><span class="closeBox glyphicon glyphicon-remove" aria-hidden="true"></span></li><li><span class="glyphicon glyphicon-unchecked maximize" aria-hidden="true"></span></li><li><span class="glyphicon glyphicon-minus minimize" aria-hidden="true"></span></li></ul></div></div></div><div class="row minimizeChatBox"><form class="form-inline personalMsgForm" role="form" data-attribute="'+uniqueId+'" id="'+uniqueId+'"><div class="showMsgs" style="width:100%;float:left;height:110px;overflow: scroll;"> <ul class="personalMessages" style="padding-bottom:40px"></ul></div><div class="form-group"><input class="form-control personalMessage" autocomplete="off" placeholder="Type message"></div><button class="btn btn-default">Send</button></form></div></div>');
+      if(! $('#'+uniqueId+'userTab').length){
+            $('#chat_tabs').append("<div class='col-sm-3 closeChatBox' style='border:2px solid black;background:white;' id='"+uniqueId+"userTab'><div class='row chatBoxTitleBar'><div class='panel panel-primary' style='margin-bottom:auto'><div class='panel-heading'>"+name+"<ul class='list-inline' align='right' style='margin-top: -20px;'><li><span class='closeBox glyphicon glyphicon-remove' aria-hidden='true'></span></li><li><span class='glyphicon glyphicon-unchecked maximize' aria-hidden='true'></span></li><li><span class='glyphicon glyphicon-minus minimize' aria-hidden='true'></span></li></ul></div></div></div><div class='row minimizeChatBox'><form class='form-inline personalMsgForm' role='form' data-attribute='"+uniqueId+"' id='"+uniqueId+"'><div class='showMsgs' style='width:100%;float:left;height:110px;overflow: scroll;'> <ul class='personalMessages' style='padding-bottom:40px'></ul></div><div class='form-group'><input class='form-control personalMessage' autocomplete='off' placeholder='Type message'></div><button class='btn btn-default'>Send</button></form></div></div>");
             socket.emit('tab open',{friendId:uniqueId});
       }
+
       socket.on('old message',function(data){
             var html = '';
             for(var i =data.length -1 ; i>= 0; i--){
                   if(data[i].from === uniqueId) {
-                        html += '<li><span class=""> '+data[i].message+'</span></li>'
+                        html += '<li style="margin: 10px 0;" ><div style="border-radius: 15px 0px 15px 15px;background: #DFC3C3;width:70%;height:110%";float: right;text-align: right;>'+data[i].message+'</div></li>'
                   } else {
-                        html += '<li><span class="'+data[i].status+'"> '+data[i].message+'</span></li>'
+                        html += '<li style="margin: 10px 0;"><div style="border-radius: 15px 0px 15px 15px;background: #DFC3C3;width:70%;height:110%;float: right;text-align: right;" class="'+data[i].status+'"> '+data[i].message+'</div></li>'
                   }
             }
             if ($('#'+uniqueId).length){
@@ -123,17 +118,17 @@ function CreateTab(name, uniqueId)
                   socket.emit('personal message',{msg:msg,friendId:$(this).attr('data-attribute')},function(err, status){
                         if(err) {
             
-                              currentForm.find('.personalMessages').append('<li style="margin: 10px 0;" ><b>'+$('#username').val().toUpperCase()+':</b><div style="border-radius: 15px 0px 15px 15px;background: #DFC3C3;width:70%;height:110%";float: right;text-align: right;>  '+msg+'</div></li>');
+                              currentForm.find('.personalMessages').append('<li style="margin: 10px 0;" ><div style="border-radius: 15px 0px 15px 15px;background: #DFC3C3;width:70%;height:110%";float: right;text-align: right;>  '+msg+'</div></li>');
                         
                         }
                         else if(status == 'deliver') {
                               
-                              currentForm.find('.personalMessages').append('<li style="margin: 10px 0;"><b>'+$('#username').val().toUpperCase()+':</b><div style="border-radius: 15px 0px 15px 15px;background: #DFC3C3;width:70%;height:110%;float: right;text-align: right;" class="deliver"> '+msg+'</span></li>');
+                              currentForm.find('.personalMessages').append('<li style="margin: 10px 0;"><div style="border-radius: 15px 0px 15px 15px;background: #DFC3C3;width:70%;height:110%;float: right;text-align: right;" class="deliver"> '+msg+'</div></li>');
                         
                         }
                         else {
                               
-                              currentForm.find('.personalMessages').append('<li style="margin: 10px 0;"><b>'+$('#username').val().toUpperCase()+':</b><div style="border-radius: 15px 0px 15px 15px;background: #DFC3C3;width:70%;height:110%;float: right;text-align: right;" class="send">  '+msg+'</span></li>');
+                              currentForm.find('.personalMessages').append('<li style="margin: 10px 0;"><div style="border-radius: 15px 0px 15px 15px;background: #DFC3C3;width:70%;height:110%;float: right;text-align: right;" class="send">  '+msg+'</div></li>');
                         
                         }
                   });
