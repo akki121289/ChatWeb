@@ -95,9 +95,9 @@ function CreateTab(name, uniqueId)
             var html = '';
             for(var i =data.length -1 ; i>= 0; i--){
                   if(data[i].from === uniqueId) {
-                        html += '<li style="" ><div class="col-sm-12"><div style="margin: 2px 0;border-radius: 0px 15px 15px 15px;background: #22C7C4;width:70%;height:110%" >'+data[i].message+'</div></div></li>'
+                        html += '<li><div class="col-sm-12"><div style="padding:4px;margin: 2px 0;border-radius: 0px 15px 15px 15px;background: #22C7C4;width:70%;height:110%" >'+data[i].message+'</div></div></li>'
                   } else {
-                        html += '<li style=""><div class="col-sm-12"><div style="margin: 2px 0;border-radius: 15px 0px 15px 15px;background: #DFC3C3;width:70%;height:110%;float: right;text-align: right;" class="'+data[i].status+'"> '+data[i].message+'</div></div></li>'
+                        html += '<li><div class="col-sm-12"><div style="padding:4px;margin: 2px 0;border-radius: 15px 0px 15px 15px;background: #DFC3C3;width:70%;height:110%;float: right;text-align: right;" class="'+data[i].status+'"> '+data[i].message+'</div></div></li>'
                   }
             }
             if ($('#'+uniqueId).length){
@@ -117,17 +117,17 @@ function CreateTab(name, uniqueId)
                   socket.emit('personal message',{msg:msg,friendId:$(this).attr('data-attribute')},function(err, status){
                         if(err) {
             
-                              currentForm.find('.personalMessages').append('<li ><div class="col-sm-12"><div style="margin: 2px 0;border-radius: 15px 0px 15px 15px;background: #DFC3C3;width:70%;height:110%";float: right;text-align: right;>  '+msg+'</div></div></li>');
+                              currentForm.find('.personalMessages').append('<li ><div class="col-sm-12"><div style="padding:4px;margin: 2px 0;border-radius: 15px 0px 15px 15px;background: #DFC3C3;width:70%;height:110%";float: right;text-align: right;>  '+msg+'</div></div></li>');
                         
                         }
                         else if(status == 'deliver') {
                               
-                              currentForm.find('.personalMessages').append('<li><div class="col-sm-12"><div style="margin: 2px 0;border-radius: 15px 0px 15px 15px;background: #DFC3C3;width:70%;height:110%;float: right;text-align: right;" class="deliver"> '+msg+'</div></div></li>');
+                              currentForm.find('.personalMessages').append('<li><div class="col-sm-12"><div style="padding:4px;margin: 2px 0;border-radius: 15px 0px 15px 15px;background: #DFC3C3;width:70%;height:110%;float: right;text-align: right;" class="deliver"> '+msg+'</div></div></li>');
                         
                         }
                         else {
                               
-                              currentForm.find('.personalMessages').append('<li><div class="col-sm-12"><div style="margin: 2px 0;border-radius: 15px 0px 15px 15px;background: #DFC3C3;width:70%;height:110%;float: right;text-align: right;" class="send">  '+msg+'</div></div></li>');
+                              currentForm.find('.personalMessages').append('<li><div class="col-sm-12"><div style="padding:4px;margin: 2px 0;border-radius: 15px 0px 15px 15px;background: #DFC3C3;width:70%;height:110%;float: right;text-align: right;" class="send">  '+msg+'</div></div></li>');
                         
                         }
                   });
