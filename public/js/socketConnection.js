@@ -25,7 +25,7 @@ $(document).ready(function(){
       });
       // for updating the number of online users in real time 
       socket.on('online user numbers',function(numbers){
-            numbers = numbers - 1;
+            numbers = numbers ? (numbers - 1) : numbers;
             $totalonline.html(' '+numbers+' ');
       });
       // emit this event because notification other user that i ma became online :)
