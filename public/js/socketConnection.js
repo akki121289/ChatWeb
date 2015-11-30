@@ -159,25 +159,13 @@ function CreateTab(name, uniqueId)
       });
 }
 
-function setContainerHeight()
-{     var height = $( window ).height();
-      $('.container').height(height);
-}
+function scrollChat(chatWindow){
 
-function tabMessageSender()
-{
-            var message = $('#messageTab').val()
-            if(message !== ''){
-                  socket.emit('message',{msg:message});
-                  $('#messageTab').val('');
-            } 
-}
-
-function scrollChat(personalMsgs){
-      var down=personalMsgs.scrollHeight-personalMsgs.clientHeight;
+      var down = chatWindow.scrollHeight - chatWindow.clientHeight;
       if(down>=0){                       
-            $(personalMsgs).scrollTop(down); 
+            $(chatWindow).scrollTop(down); 
       }
+
 }
 
 
