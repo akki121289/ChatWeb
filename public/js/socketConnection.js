@@ -87,7 +87,7 @@ $(document).ready(function(){
 function CreateTab(name, uniqueId)
 {          
       if(! $('#'+uniqueId+'userTab').length){
-            $('#chat_tabs').append("<div class='col-sm-3 closeChatBox' style='margin-right:5px;background:white;' id='"+uniqueId+"userTab'><div class='row chatBoxTitleBar'><div class='panel panel-primary' style='margin-bottom:auto'><div class='panel-heading'>"+name+"<ul class='list-inline' align='right' style='margin-top: -20px;list-style-type:non'><li><span class='closeBox glyphicon glyphicon-remove' aria-hidden='true'></span></li><li><span class='glyphicon glyphicon-unchecked maximize' aria-hidden='true'></span></li><li><span class='glyphicon glyphicon-minus minimize' aria-hidden='true'></span></li></ul></div></div></div><div class='row minimizeChatBox'><form class='form-inline personalMsgForm' role='form' data-attribute='"+uniqueId+"' id='"+uniqueId+"'><div class='showMsgs' style='width:100%;float:left;height:110px;overflow: scroll;'> <ul class='personalMessages' style='padding-bottom:40px; list-style-type:none;'></ul></div><div class='form-group'><input class='form-control personalMessage' autocomplete='off' placeholder='Type message'></div><button class='btn btn-default'>Send</button></form></div></div>");
+            $('#chat_tabs').append("<div class='col-sm-3 closeChatBox' style='margin-right:5px;background:white;' id='"+uniqueId+"userTab'><div class='row chatBoxTitleBar'><div class='panel panel-primary' style='margin-bottom:auto'><div class='panel-heading'>"+name+"<ul class='list-inline' style='list-style-type:none;float:right'><li><span class='closeBox glyphicon glyphicon-remove' aria-hidden='true'></span></li><li><span class='glyphicon glyphicon-unchecked maximize' aria-hidden='true'></span></li><li><span class='glyphicon glyphicon-minus minimize' aria-hidden='true'></span></li></ul></div></div></div><div class='row minimizeChatBox'><form class='form-inline personalMsgForm' role='form' data-attribute='"+uniqueId+"' id='"+uniqueId+"'><div class='showMsgs' style='width:100%;float:left;height:110px;overflow: scroll;'> <ul class='personalMessages' style='padding-bottom:40px; list-style-type:none;'></ul></div><div class='form-group'><input class='form-control personalMessage' autocomplete='off' placeholder='Type message'></div><button class='btn btn-default'>Send</button></form></div></div>");
             socket.emit('tab open',{friendId:uniqueId});
       }
 
@@ -111,25 +111,18 @@ function CreateTab(name, uniqueId)
 
             var msg = $(this).find('.personalMessage').val().trim();
             if(msg !== ''){
-                  
-                  scrollChat($(this).find('.showMsgs')[0]);
                   var currentForm = $(this);
                   socket.emit('personal message',{msg:msg,friendId:$(this).attr('data-attribute')},function(err, status){
                         if(err) {
-            
-                              currentForm.find('.personalMessages').append('<li ><div class="col-sm-12"><div style="margin: 2px 0;border-radius: 15px 0px 15px 15px;background: #DFC3C3;width:70%;height:110%";float: right;text-align: right;>  '+msg+'</div></div></li>');
-                        
+                              currentForm.find('.personalMessages').append('<li><div class="col-sm-12"><div style="margin: 2px 0;border-radius: 15px 0px 15px 15px;background: #DFC3C3;width:70%;height:110%";float: right;>  '+msg+'</div></div></li>');
                         }
                         else if(status == 'deliver') {
-                              
-                              currentForm.find('.personalMessages').append('<li><div class="col-sm-12"><div style="margin: 2px 0;border-radius: 15px 0px 15px 15px;background: #DFC3C3;width:70%;height:110%;float: right;text-align: right;" class="deliver"> '+msg+'</div></div></li>');
-                        
+                              currentForm.find('.personalMessages').append('<li><div class="col-sm-12"><div style="margin: 2px 0;border-radius: 15px 0px 15px 15px;background: #DFC3C3;width:70%;height:110%;float: right;" class="deliver"> '+msg+'</div></div></li>');
                         }
                         else {
-                              
-                              currentForm.find('.personalMessages').append('<li><div class="col-sm-12"><div style="margin: 2px 0;border-radius: 15px 0px 15px 15px;background: #DFC3C3;width:70%;height:110%;float: right;text-align: right;" class="send">  '+msg+'</div></div></li>');
-                        
+                              currentForm.find('.personalMessages').append('<li><div class="col-sm-12"><div style="margin: 2px 0;border-radius: 15px 0px 15px 15px;background: #DFC3C3;width:70%;height:110%;float: right;" class="send">  '+msg+'</div></div></li>');
                         }
+                        scrollChat(currentForm.find('.showMsgs')[0]);
                   });
             }
             $(this).find('.personalMessage').val('');
@@ -158,7 +151,6 @@ function CreateTab(name, uniqueId)
 }
 
 function scrollChat(chatWindow){
-
       var down = chatWindow.scrollHeight - chatWindow.clientHeight;
       if(down>=0){                       
             $(chatWindow).scrollTop(down); 
