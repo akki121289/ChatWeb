@@ -11,3 +11,50 @@
 .jumbotron{
 	margin-top:5%;
 }
+
+
+#chat_tabs{
+	position:fixed;
+	bottom:0px;
+}
+.closeChatBox{
+	margin-right:5px;
+	background:white;
+}
+
+.showMsgs{
+	width:100%;
+	float:left;
+	height:110px;
+	overflow: scroll;
+}
+
+.pChatTo{
+	padding:4px;
+	margin: 2px 0;
+	border-radius: 15px 0px 15px 15px;
+	background: #DFC3C3;
+	width:70%;
+	height:110%;
+	float: right;
+	text-align: right;
+}
+
+.pChatFrom{
+	padding:4px;
+	margin: 2px 0;
+	border-radius: 0px 15px 15px 15px;
+	background: #22C7C4;
+	width:70%;
+	height:110%;
+}
+
+.personalMessages{
+
+	padding-bottom:40px;
+	 list-style-type:none;
+}
+
+ul {
+	list-style-type:none;
+}
