@@ -4,8 +4,10 @@ var Schema = mongoose.Schema;
 
 var personalMessage = Schema({
 	from: {type: Schema.Types.ObjectId, ref: 'users', required: true},
+	type : {type: String, default: 'message'},
 	to: {type: Schema.Types.ObjectId, ref: 'users', required: true},
 	message: String,
+	image : String,
 	status:{ type:String, default:'send' },
 	createdAt : {type:String, default:Date.now}
 });

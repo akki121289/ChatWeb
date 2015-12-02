@@ -36,6 +36,18 @@ $(document).ready(function(){
             if (user._id !== $_id.val())
                   $onlineUser.append("<li id='"+user._id+"userList' class=list-group-item onclick=\"CreateTab('"+user.username+"' ,'"+user._id+"')\" > "+user.username+ "</li>");
       });
+
+      socket.on('image from friend',function(data,callback){
+            if ($('#'+data._id).length){
+                  $('#'+data._id).find('.personalMessages').append('<li><div class="col-sm-12"><div class="pChatFrom"> <img src="'+data.img+'" width="150" height="80"> </div></div></li>');
+                  scrollChat($('#'+data._id).find('.showMsgs')[0]);
+            }else{
+                  CreateTab(data.username,data._id);
+            }
+            
+            callback();
+      });
+
       // updating the list of online user when any user goes offline
       socket.on('remove user',function(_id){
             $('#'+_id+'userList').remove();
@@ -88,21 +100,31 @@ $(document).ready(function(){
 function CreateTab(name, uniqueId)
 {          
       if(! $('#'+uniqueId+'userTab').length){
-
             // $('#chat_tabs').append("<div class='col-sm-3 closeChatBox' style='margin-right:5px;background:white;' id='"+uniqueId+"userTab'><div class='row chatBoxTitleBar'><div class='panel panel-primary' style='margin-bottom:auto'><div class='panel-heading'>"+name+"<ul class='list-inline' style='list-style-type:none;float:right'><li><span class='closeBox glyphicon glyphicon-remove' aria-hidden='true'></span></li><li><span class='glyphicon glyphicon-unchecked maximize' aria-hidden='true'></span></li><li><span class='glyphicon glyphicon-minus minimize' aria-hidden='true'></span></li></ul></div></div></div><div class='row minimizeChatBox'><form class='form-inline personalMsgForm' role='form' data-attribute='"+uniqueId+"' id='"+uniqueId+"'><div class='showMsgs' style='width:100%;float:left;height:110px;overflow: scroll;'> <ul class='personalMessages' style='padding-bottom:40px; list-style-type:none;'></ul></div><div class='form-group'><input class='form-control personalMessage' autocomplete='off' placeholder='Type message'></div><button class='btn btn-default'>Send</button></form></div></div>");
-            $('#chat_tabs').append("<div class='col-sm-3 closeChatBox' id='"+uniqueId+"userTab'><div class='row chatBoxTitleBar'><div class='panel panel-primary' style='margin-bottom:auto'><div class='panel-heading'>"+name+"<ul class='list-inline' style='float:right;'><li><span class='closeBox glyphicon glyphicon-remove' aria-hidden='true'></span></li><li><span class='glyphicon glyphicon-unchecked maximize' aria-hidden='true'></span></li><li><span class='glyphicon glyphicon-minus minimize' aria-hidden='true'></span></li></ul></div></div></div><div class='row minimizeChatBox'><form class='form-inline personalMsgForm' role='form' data-attribute='"+uniqueId+"' id='"+uniqueId+"'><div class='showMsgs'> <ul class='personalMessages' style='padding-bottom:40px;'></ul></div><div class='form-group'><input class='form-control personalMessage' autocomplete='off' placeholder='Type message'></div><button class='btn btn-default'>Send</button></form></div></div>");
+            $('#chat_tabs').append("<div class='col-sm-3 closeChatBox' id='"+uniqueId+"userTab'><div class='row chatBoxTitleBar'><div class='panel panel-primary' style='margin-bottom:auto'><div class='panel-heading'>"+name+"<ul class='list-inline' style='float:right;'><li><span class='closeBox glyphicon glyphicon-remove' aria-hidden='true'></span></li><li><span class='glyphicon glyphicon-unchecked maximize' aria-hidden='true'></span></li><li><span class='glyphicon glyphicon-minus minimize' aria-hidden='true'></span></li></ul></div></div></div><div class='row minimizeChatBox'><form class='form-inline personalMsgForm' role='form' data-attribute='"+uniqueId+"' id='"+uniqueId+"'><div class='showMsgs'> <ul class='personalMessages' style='padding-bottom:40px;'></ul></div><div class='form-group'><input class='form-control personalMessage' autocomplete='off' placeholder='Type message'></div><button class='btn btn-default'>Send</button></form><input class='uploadImage' type='file' name='pic' accept='image/*'></div></div>");
             socket.emit('tab open',{friendId:uniqueId});
       }
+
 
       socket.on('old message',function(data){
             var html = '';
             for(var i =data.length -1 ; i>= 0; i--){
                   if(data[i].from === uniqueId) {
                         // html += '<li><div class="col-sm-12"><div style="padding:4px;margin: 2px 0;border-radius: 0px 15px 15px 15px;background: #22C7C4;width:70%;height:110%" >'+data[i].message+'</div></div></li>';
-                        html += '<li><div class="col-sm-12"><div class="pChatFrom" >'+data[i].message+'</div></div></li>';
+                        html += '<li><div class="col-sm-12"><div class="pChatFrom" >';
+                        if(data[i].type == 'image')
+                              html += '<img src="'+ data[i][data[i].type] +'" width="150" height="80">'; 
+                        else
+                              html += data[i][data[i].type];  
+                        html += '</div></div></li>';
                   } else {
                         // html += '<li><div class="col-sm-12"><div style="padding:4px;margin: 2px 0;border-radius: 15px 0px 15px 15px;background: #DFC3C3;width:70%;height:110%;float: right;text-align: right;" class="'+data[i].status+'"> '+data[i].message+'</div></div></li>';
-                        html += '<li><div class="col-sm-12"><div class=" pChatTo '+data[i].status+'"> '+data[i].message+'</div></div></li>';
+                        html += '<li><div class="col-sm-12"><div class=" pChatTo" >';
+                        if(data[i].type == 'image')
+                              html += '<img src="'+ data[i][data[i].type] +'" width="150" height="80">'; 
+                        else
+                              html += data[i][data[i].type];  
+                        html += '</div></div></li>';
                   }
             }
             if ($('#'+uniqueId).length){
@@ -111,8 +133,56 @@ function CreateTab(name, uniqueId)
             scrollChat($('#'+uniqueId).find('.showMsgs')[0]);
       });
 
+      $('.uploadImage').on('change', function(e){
+          var file = e.originalEvent.target.files[0],
+                  reader = new FileReader();
+                  var friendId = $(this).closest('.minimizeChatBox').find('.personalMsgForm').attr('data-attribute');
+                  var currentForm = $(this);
+            reader.onload = function(evt){
+            var jsonObject = {
+                  'imageData': evt.target.result,
+                  'friendId' : friendId,
+                  'fileName' : file.name
+              }
+
+              
+ 
+              // send a custom socket message to server
+              socket.emit('user image', jsonObject,function(err, data){
+              console.log("status===",data); 
+                  if(err) {
+                        currentForm.closest('.minimizeChatBox').find('.personalMessages').append('<li ><div class="col-sm-12"><div class="pChatTo" > <img src="'+ data.img +'" width="150" height="80"> </div></div></li>');
+                  }
+                  else if(data.status == 'deliver') {
+                        currentForm.closest('.minimizeChatBox').find('.personalMessages').append('<li><div class="col-sm-12"><div class="deliver pChatTo"> <img src="'+ data.img +'" width="150" height="80"> </div></div></li>');
+                  }
+                  else {
+                         currentForm.closest('.minimizeChatBox').find('.personalMessages').append('<li><div class="col-sm-12"><div class="send pChatTo">  <img src="'+ data.img +'" width="150" height="80"> </div></div></li>');
+                  }
+                  scrollChat(currentForm.closest('.minimizeChatBox').find('.showMsgs')[0]);
+              });
+          };
+          reader.readAsDataURL(file);
+      });
+
       $('.personalMsgForm').submit(function(e){
-            e.preventDefault();
+           
+
+            console.log(e);
+             e.preventDefault();
+            // var files = e.target[1].files;
+
+            var jsonObject = {};
+            var reader = new FileReader();
+                  reader.onload = function(evt){
+                  jsonObject = {
+                  'imageData': evt.target.result,
+                  }
+              console.log("jsonObject",jsonObject);    
+            }
+              // send a custom socket message to server
+              
+
 
             var msg = $(this).find('.personalMessage').val().trim();
             if(msg !== ''){
@@ -139,6 +209,24 @@ function CreateTab(name, uniqueId)
             }
             $(this).find('.personalMessage').val('');
       });
+
+
+      // $('.uploadImage').on('change', function(e){
+      //     var file = e.originalEvent.target.files[0],
+      //             reader = new FileReader();
+      //     reader.onload = function(evt){
+      //         var jsonObject = {
+      //             'imageData': evt.target.result,
+      //         }
+ 
+      //         // send a custom socket message to server
+      //         console.log("jsonObject",jsonObject);
+      //         // socket.emit('user image', jsonObject);
+      //     };
+      //     reader.readAsDataURL(file);
+      // });
+
+
       setInterval(function(){
 
             if($('#'+uniqueId).find('.personalMessage').is(":focus")){
@@ -160,6 +248,27 @@ function CreateTab(name, uniqueId)
       $('.closeBox').click(function(){
             $(this).closest('.closeChatBox').remove();
       });
+
+      // $('.uploadImages').click(function(){
+      //       $.ajax({
+      //             url:"/uploadImage",
+      //             data: 
+      //             {
+      //                   method       : "voteajaxcall",
+      //                   id     : id
+      //             },
+      //             success: function(data)
+      //             {     
+      //                   $("#vote" + id).hide();
+      //                   $("#voted" + id).show();
+      //             },
+      //             error: function(xhr)
+      //             {
+      //                alert("Error requesting " + ": " + xhr.status + " " + xhr.statusText);
+      //             }
+      //       });
+      // });
+
 }
 
 function scrollChat(chatWindow){

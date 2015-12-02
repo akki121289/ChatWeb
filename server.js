@@ -34,6 +34,21 @@ server.route({
         }
     }
 });
+
+
+server.route({
+    path: "/data/{path*}",
+    method: "GET",
+    handler: {
+        directory: {
+            path: "./data",
+            listing: false,
+            index: false
+        }
+    }
+});
+
+
 // defining routes
 routes(server);
 // socket connect

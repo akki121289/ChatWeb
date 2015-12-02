@@ -1,5 +1,6 @@
 var Users = require('../models/users')
-	bcrypt = require('bcryptjs');
+	bcrypt = require('bcryptjs'),
+	fs = require('fs');
 
 module.exports = function(server){
 
@@ -10,6 +11,7 @@ module.exports = function(server){
 	        reply.view('index');
 	    }
 	});
+
 	//@ this route is used for register the institute
 	server.route({
 		path:'/user',

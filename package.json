@@ -4,12 +4,13 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "nodemon server.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^2.3.0",
+    "fs": "0.0.2",
     "good": "^6.4.0",
     "good-console": "^5.2.0",
     "handlebars": "^4.0.4",
@@ -20,6 +21,5 @@
     "mongoose": "^4.2.6",
     "socket.io": "git://github.com/automattic/socket.io#master",
     "yar": "^4.0.0"
-  },
-  "scripts" : { "start" : "nodemon server.js" }
+  }
 }

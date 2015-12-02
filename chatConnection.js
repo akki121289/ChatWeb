@@ -5,7 +5,8 @@ var SocketIO = require('socket.io'),
     Schema = mongoose.Schema,
     onlineUsers = {}, // onlineUsers object contains all the connected socket object with unique id of user _id
     userWithNames = {}, // userWithNames object contains all connected user name with unique id of user _id
-    io;
+    io,
+    fs = require('fs');
 // function for update the status of message that can be 'send','deliver' or 'seen'
 function updateMessageStatus(to , from , newStatus, callback){
     PersonalMessage.update({to:to, from:from , $or :[{status:'send'},{status:'deliver'}]},{
@@ -60,10 +61,60 @@ function chatHandler(socket){
             }
         });
     });
+
+    socket.on('user image',function(data,callback){
+         var base64Data = decodeBase64Image(data.imageData);
+         // console.log(base64Data);
+         var path = __dirname + "/data/" + data.fileName;
+        fs.writeFile(path, base64Data.data, function (err) {
+            if (err) {
+                console.log('ERROR:: ' + err);
+                throw err;
+            } 
+
+            var personMessageObj = {};
+                personMessageObj.type = 'image';
+                personMessageObj.from = socket.uniqueId;
+                personMessageObj.to = data.friendId;
+                personMessageObj.image = '/data/' + data.fileName;
+                personMessageObj.status = 'send';
+
+            var personMessage = new PersonalMessage(personMessageObj);
+            //  personMessage.save();
+             personMessage.save(function(err){
+                
+                if(err) {
+                    callback(true ,null);
+                }   
+                // here we checking the user is online  or offline
+                else if (onlineUsers[data.friendId]) {
+                        // here we are sending the message to friend
+                        onlineUsers[data.friendId].emit('image from friend', {img:'/data/' + data.fileName, username:userWithNames[socket.uniqueId],  _id:socket.uniqueId}, function(){
+                            // if the message send successfully then change the status
+                            updateMessageStatus(socket.uniqueId, data.friendId, 'deliver', function(err){
+                                if(err) {
+                                    // if the message send but not deliver to the friend yet
+                                    callback(false, {img:'/data/' + data.fileName, status :'send'});
+                                } else {
+                                    // if the message deliver but not seen by friend
+                                    callback(false, {img:'/data/' + data.fileName, status :'deliver'});
+                                }
+                            });
+                        });
+                } else {
+                    // if the message not save in database the status should be send nut not deliver to the friend
+                    callback(false, {img:'/data/' + data.fileName, status :'send'});
+                }
+            });
+
+        });
+        
+    });
     // one to one chat
     // when any friend send a message to other friend 
     socket.on('personal message',function(data, callback){
         // first we are save message
+        console.log("data request on personal message socket======",data);
         (new PersonalMessage({
             from: socket.uniqueId,
             to: data.friendId,
@@ -144,3 +195,14 @@ function init(listener){
 module.exports = {
 	init:init
 }
+
+function decodeBase64Image(dataString) {
+        var matches = dataString.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/),
+            response = {};
+        if (matches.length !== 3) {
+            return new Error('Invalid input string');
+        }
+        response.type = matches[1];
+        response.data = new Buffer(matches[2], 'base64');
+        return response;
+    }
