@@ -94,19 +94,10 @@ $(document).ready(function(){
                   $('#'+data.friendId).find('.personalMessages').find('.deliver').removeClass( ".send" ).addClass( "seen" );
             }
       });
-});
 
-
-function CreateTab(name, uniqueId)
-{          
-      if(! $('#'+uniqueId+'userTab').length){
-            // $('#chat_tabs').append("<div class='col-sm-3 closeChatBox' style='margin-right:5px;background:white;' id='"+uniqueId+"userTab'><div class='row chatBoxTitleBar'><div class='panel panel-primary' style='margin-bottom:auto'><div class='panel-heading'>"+name+"<ul class='list-inline' style='list-style-type:none;float:right'><li><span class='closeBox glyphicon glyphicon-remove' aria-hidden='true'></span></li><li><span class='glyphicon glyphicon-unchecked maximize' aria-hidden='true'></span></li><li><span class='glyphicon glyphicon-minus minimize' aria-hidden='true'></span></li></ul></div></div></div><div class='row minimizeChatBox'><form class='form-inline personalMsgForm' role='form' data-attribute='"+uniqueId+"' id='"+uniqueId+"'><div class='showMsgs' style='width:100%;float:left;height:110px;overflow: scroll;'> <ul class='personalMessages' style='padding-bottom:40px; list-style-type:none;'></ul></div><div class='form-group'><input class='form-control personalMessage' autocomplete='off' placeholder='Type message'></div><button class='btn btn-default'>Send</button></form></div></div>");
-            $('#chat_tabs').append("<div class='col-sm-3 closeChatBox' id='"+uniqueId+"userTab'><div class='row chatBoxTitleBar'><div class='panel panel-primary' style='margin-bottom:auto'><div class='panel-heading'>"+name+"<ul class='list-inline' style='float:right;'><li><span class='closeBox glyphicon glyphicon-remove' aria-hidden='true'></span></li><li><span class='glyphicon glyphicon-unchecked maximize' aria-hidden='true'></span></li><li><span class='glyphicon glyphicon-minus minimize' aria-hidden='true'></span></li></ul></div></div></div><div class='row minimizeChatBox'><form class='form-inline personalMsgForm' role='form' data-attribute='"+uniqueId+"' id='"+uniqueId+"'><div class='showMsgs'> <ul class='personalMessages' style='padding-bottom:40px;'></ul></div><div class='form-group'><input class='form-control personalMessage' autocomplete='off' placeholder='Type message'></div><button class='btn btn-default'>Send</button></form><input class='uploadImage' type='file' name='pic' accept='image/*'></div></div>");
-            socket.emit('tab open',{friendId:uniqueId});
-      }
-
-
-      socket.on('old message',function(data){
+       socket.on('old message',function(messageData){
+            var data =  messageData.messages;
+            var uniqueId = messageData.uniqueId;
             var html = '';
             for(var i =data.length -1 ; i>= 0; i--){
                   if(data[i].from === uniqueId) {
@@ -133,6 +124,50 @@ function CreateTab(name, uniqueId)
             scrollChat($('#'+uniqueId).find('.showMsgs')[0]);
       });
 
+
+      // $('.uploadImage').on('change', function(e){
+      //     var file = e.originalEvent.target.files[0],
+      //             reader = new FileReader();
+      //             var friendId = $(this).closest('.minimizeChatBox').find('.personalMsgForm').attr('data-attribute');
+      //             var currentForm = $(this);
+      //       reader.onload = function(evt){
+      //       var jsonObject = {
+      //             'imageData': evt.target.result,
+      //             'friendId' : friendId,
+      //             'fileName' : file.name
+      //         }
+
+      //         // send a custom socket message to server
+      //         socket.emit('user image', jsonObject,function(err, data){
+      //         console.log("status===",data); 
+      //             if(err) {
+      //                   currentForm.closest('.minimizeChatBox').find('.personalMessages').append('<li ><div class="col-sm-12"><div class="pChatTo" > <img src="'+ data.img +'" width="150" height="80"> </div></div></li>');
+      //             }
+      //             else if(data.status == 'deliver') {
+      //                   currentForm.closest('.minimizeChatBox').find('.personalMessages').append('<li><div class="col-sm-12"><div class="deliver pChatTo"> <img src="'+ data.img +'" width="150" height="80"> </div></div></li>');
+      //             }
+      //             else {
+      //                    currentForm.closest('.minimizeChatBox').find('.personalMessages').append('<li><div class="col-sm-12"><div class="send pChatTo">  <img src="'+ data.img +'" width="150" height="80"> </div></div></li>');
+      //             }
+      //             scrollChat(currentForm.closest('.minimizeChatBox').find('.showMsgs')[0]);
+      //         });
+      //     };
+      //     reader.readAsDataURL(file);
+      // });
+
+});
+
+
+function CreateTab(name, uniqueId)
+{          
+      if(! $('#'+uniqueId+'userTab').length){
+            // $('#chat_tabs').append("<div class='col-sm-3 closeChatBox' style='margin-right:5px;background:white;' id='"+uniqueId+"userTab'><div class='row chatBoxTitleBar'><div class='panel panel-primary' style='margin-bottom:auto'><div class='panel-heading'>"+name+"<ul class='list-inline' style='list-style-type:none;float:right'><li><span class='closeBox glyphicon glyphicon-remove' aria-hidden='true'></span></li><li><span class='glyphicon glyphicon-unchecked maximize' aria-hidden='true'></span></li><li><span class='glyphicon glyphicon-minus minimize' aria-hidden='true'></span></li></ul></div></div></div><div class='row minimizeChatBox'><form class='form-inline personalMsgForm' role='form' data-attribute='"+uniqueId+"' id='"+uniqueId+"'><div class='showMsgs' style='width:100%;float:left;height:110px;overflow: scroll;'> <ul class='personalMessages' style='padding-bottom:40px; list-style-type:none;'></ul></div><div class='form-group'><input class='form-control personalMessage' autocomplete='off' placeholder='Type message'></div><button class='btn btn-default'>Send</button></form></div></div>");
+            $('#chat_tabs').append("<div class='col-sm-3 closeChatBox' id='"+uniqueId+"userTab'><div class='row chatBoxTitleBar'><div class='panel panel-primary' style='margin-bottom:auto'><div class='panel-heading'>"+name+"<ul class='list-inline' style='float:right;'><li><span class='closeBox glyphicon glyphicon-remove' aria-hidden='true'></span></li><li><span class='glyphicon glyphicon-unchecked maximize' aria-hidden='true'></span></li><li><span class='glyphicon glyphicon-minus minimize' aria-hidden='true'></span></li></ul></div></div></div><div class='row minimizeChatBox'><form class='form-inline personalMsgForm' role='form' data-attribute='"+uniqueId+"' id='"+uniqueId+"'><div class='showMsgs'> <ul class='personalMessages' style='padding-bottom:40px;'></ul></div><div class='form-group'><input class='form-control personalMessage' autocomplete='off' placeholder='Type message'></div><button class='btn btn-default'>Send</button></form><input class='uploadImage' type='file' name='pic' accept='image/*'></div></div>");
+            socket.emit('tab open',{friendId:uniqueId});
+      }
+
+      $('.uploadImage').unbind( "change");
+
       $('.uploadImage').on('change', function(e){
           var file = e.originalEvent.target.files[0],
                   reader = new FileReader();
@@ -144,9 +179,6 @@ function CreateTab(name, uniqueId)
                   'friendId' : friendId,
                   'fileName' : file.name
               }
-
-              
- 
               // send a custom socket message to server
               socket.emit('user image', jsonObject,function(err, data){
               console.log("status===",data); 
@@ -211,22 +243,6 @@ function CreateTab(name, uniqueId)
       });
 
 
-      // $('.uploadImage').on('change', function(e){
-      //     var file = e.originalEvent.target.files[0],
-      //             reader = new FileReader();
-      //     reader.onload = function(evt){
-      //         var jsonObject = {
-      //             'imageData': evt.target.result,
-      //         }
- 
-      //         // send a custom socket message to server
-      //         console.log("jsonObject",jsonObject);
-      //         // socket.emit('user image', jsonObject);
-      //     };
-      //     reader.readAsDataURL(file);
-      // });
-
-
       setInterval(function(){
 
             if($('#'+uniqueId).find('.personalMessage').is(":focus")){
@@ -248,26 +264,6 @@ function CreateTab(name, uniqueId)
       $('.closeBox').click(function(){
             $(this).closest('.closeChatBox').remove();
       });
-
-      // $('.uploadImages').click(function(){
-      //       $.ajax({
-      //             url:"/uploadImage",
-      //             data: 
-      //             {
-      //                   method       : "voteajaxcall",
-      //                   id     : id
-      //             },
-      //             success: function(data)
-      //             {     
-      //                   $("#vote" + id).hide();
-      //                   $("#voted" + id).show();
-      //             },
-      //             error: function(xhr)
-      //             {
-      //                alert("Error requesting " + ": " + xhr.status + " " + xhr.statusText);
-      //             }
-      //       });
-      // });
 
 }
 

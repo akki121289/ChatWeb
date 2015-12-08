@@ -155,7 +155,9 @@ function chatHandler(socket){
             } else {
                 PersonalMessage.find({$or: [{to:socket.uniqueId, from:data.friendId},{to:data.friendId, from:socket.uniqueId }]}).sort('-createdAt').limit(5).exec(function(err, messages){
                     // To display the old messages of the friend
-                    socket.emit('old message',messages);
+
+                    var obj = { messages : messages , uniqueId : data.friendId};
+                    socket.emit('old message',obj);
                 });
             }   
         });
