@@ -9,6 +9,8 @@ var SocketIO = require('socket.io'),
     fs = require('fs');
 // function for update the status of message that can be 'send','deliver' or 'seen'
 function updateMessageStatus(to , from , newStatus, callback){
+    console.log(to);
+    console.log(from);
     PersonalMessage.update({to:to, from:from , $or :[{status:'send'},{status:'deliver'}]},{
             $set: { "status": newStatus }
         },function(err){
@@ -110,6 +112,55 @@ function chatHandler(socket){
         });
         
     });
+
+    socket.on('user audio',function(data,callback){
+        var decodedBufferData = (data.audioData).replace(/^data:audio\/mp3;base64,/, "");
+        var path = __dirname + "/data/" + data.fileName;
+        fs.writeFile(path, decodedBufferData,'base64',function (err) {
+            if (err) {
+                console.log('ERROR:: ' + err);
+                throw err;
+            } 
+            //console.log(decodedBufferData);
+            var personMessageObj = {};
+                personMessageObj.type = 'audio';
+                personMessageObj.from = socket.uniqueId;
+                personMessageObj.to = data.friendId;
+                personMessageObj.audio = '/data/' + data.fileName;
+                personMessageObj.status = 'send';
+
+            var personMessage = new PersonalMessage(personMessageObj);
+            //  personMessage.save();
+             personMessage.save(function(err){
+                
+                if(err) {
+                    callback(true ,null);
+                }   
+                // here we checking the user is online  or offline
+                else if (onlineUsers[data.friendId]) {
+                        // here we are sending the message to friend
+                        onlineUsers[data.friendId].emit('audio from friend', {img:'/data/' + data.fileName,username:userWithNames[socket.uniqueId],  _id:socket.uniqueId}, function(){
+                            // if the message send successfully then change the status
+                            updateMessageStatus(socket.uniqueId, data.friendId, 'deliver', function(err){
+                                if(err) {
+                                    // if the message send but not deliver to the friend yet
+                                    callback(false, {img:'/data/' + data.fileName, status :'send'});
+                                } else {
+                                    // if the message deliver but not seen by friend
+                                    callback(false, {img:'/data/' + data.fileName, status :'deliver'});
+                                }
+                            });
+                        });
+                } else {
+                    // if the message not save in database the status should be send nut not deliver to the friend
+                    callback(false, {img:'/data/' + data.fileName,fileName:data.fileName, status :'send'});
+                }
+            });
+
+        });
+        
+    });
+
     // one to one chat
     // when any friend send a message to other friend 
     socket.on('personal message',function(data, callback){
@@ -147,6 +198,8 @@ function chatHandler(socket){
     });
     // when any person open the tab of the friend 
     socket.on('tab open',function(data){
+        console.log(data);
+        console.log("In tab open");
         // call the method to update the status of all messages as 'deliver'
         updateMessageStatus(socket.uniqueId, data.friendId, 'deliver', function(err){
             if(err) {
@@ -155,8 +208,9 @@ function chatHandler(socket){
             } else {
                 PersonalMessage.find({$or: [{to:socket.uniqueId, from:data.friendId},{to:data.friendId, from:socket.uniqueId }]}).sort('-createdAt').limit(5).exec(function(err, messages){
                     // To display the old messages of the friend
-
+                    console.log("messages"+messages);
                     var obj = { messages : messages , uniqueId : data.friendId};
+                    console.log("obj:"+obj);
                     socket.emit('old message',obj);
                 });
             }   
@@ -208,3 +262,4 @@ function decodeBase64Image(dataString) {
         response.data = new Buffer(matches[2], 'base64');
         return response;
     }
+

@@ -8,6 +8,7 @@ var personalMessage = Schema({
 	to: {type: Schema.Types.ObjectId, ref: 'users', required: true},
 	message: String,
 	image : String,
+	audio : String,
 	status:{ type:String, default:'send' },
 	createdAt : {type:String, default:Date.now}
 });
