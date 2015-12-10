@@ -65,10 +65,15 @@ function chatHandler(socket){
     });
 
     socket.on('user image',function(data,callback){
-         var base64Data = decodeBase64Image(data.imageData);
+         //var base64Data = decodeBase64Image(data.imageData);
+        //var regReplace = '/^data:video\/' + data.fileExt + ';base64,/';
+        //console.log("regReplace=========",regReplace);
+        //console.log(data.imageData);
+        var base64Data  = (data.imageData).replace(/^data:image\/png;base64,/, "");
+        console.log(base64Data);
          // console.log(base64Data);
          var path = __dirname + "/data/" + data.fileName;
-        fs.writeFile(path, base64Data.data, function (err) {
+        fs.writeFile(path, base64Data,'base64',function (err) {
             if (err) {
                 console.log('ERROR:: ' + err);
                 throw err;
@@ -114,6 +119,9 @@ function chatHandler(socket){
     });
 
     socket.on('user audio',function(data,callback){
+        console.log(data);
+        var regReplace = '/^data:video\/' + data.fileExt + ';base64,/';
+        console.log("regReplace=========",regReplace);
         var decodedBufferData = (data.audioData).replace(/^data:audio\/mp3;base64,/, "");
         var path = __dirname + "/data/" + data.fileName;
         fs.writeFile(path, decodedBufferData,'base64',function (err) {

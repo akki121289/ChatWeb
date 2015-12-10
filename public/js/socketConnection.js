@@ -169,14 +169,13 @@ function CreateTab(name, uniqueId)
 {          
       if(! $('#'+uniqueId+'userTab').length){
             // $('#chat_tabs').append("<div class='col-sm-3 closeChatBox' style='margin-right:5px;background:white;' id='"+uniqueId+"userTab'><div class='row chatBoxTitleBar'><div class='panel panel-primary' style='margin-bottom:auto'><div class='panel-heading'>"+name+"<ul class='list-inline' style='list-style-type:none;float:right'><li><span class='closeBox glyphicon glyphicon-remove' aria-hidden='true'></span></li><li><span class='glyphicon glyphicon-unchecked maximize' aria-hidden='true'></span></li><li><span class='glyphicon glyphicon-minus minimize' aria-hidden='true'></span></li></ul></div></div></div><div class='row minimizeChatBox'><form class='form-inline personalMsgForm' role='form' data-attribute='"+uniqueId+"' id='"+uniqueId+"'><div class='showMsgs' style='width:100%;float:left;height:110px;overflow: scroll;'> <ul class='personalMessages' style='padding-bottom:40px; list-style-type:none;'></ul></div><div class='form-group'><input class='form-control personalMessage' autocomplete='off' placeholder='Type message'></div><button class='btn btn-default'>Send</button></form></div></div>");
-            $('#chat_tabs').append("<div class='col-sm-3 closeChatBox' id='"+uniqueId+"userTab'><div class='row chatBoxTitleBar'><div class='panel panel-primary' style='margin-bottom:auto'><div class='panel-heading'>"+name+"<ul class='list-inline' style='float:right;'><li><span class='closeBox glyphicon glyphicon-remove' aria-hidden='true'></span></li><li><span class='glyphicon glyphicon-unchecked maximize' aria-hidden='true'></span></li><li><span class='glyphicon glyphicon-minus minimize' aria-hidden='true'></span></li></ul></div></div></div><div class='row minimizeChatBox'><form class='form-inline personalMsgForm' role='form' data-attribute='"+uniqueId+"' id='"+uniqueId+"'><div class='showMsgs'> <ul class='personalMessages' style='padding-bottom:40px;'></ul></div><div class='form-group'><input class='form-control personalMessage' autocomplete='off' placeholder='Type message'></div><button class='btn btn-default'>Send</button></form><input class='uploadImage' type='file' name='pic' accept='image/*'><input class='uploadAudio' type='file' name='audio' accept='audio/*'></div></div>");
+            $('#chat_tabs').append("<div class='col-sm-3 closeChatBox' id='"+uniqueId+"userTab'><div class='row chatBoxTitleBar'><div class='panel panel-primary' style='margin-bottom:auto'><div class='panel-heading'>"+name+"<ul class='list-inline' style='float:right;'><li><span class='closeBox glyphicon glyphicon-remove' aria-hidden='true'></span></li><li><span class='glyphicon glyphicon-unchecked maximize' aria-hidden='true'></span></li><li><span class='glyphicon glyphicon-minus minimize' aria-hidden='true'></span></li></ul></div></div></div><div class='row minimizeChatBox'><form class='form-inline personalMsgForm' role='form' data-attribute='"+uniqueId+"' id='"+uniqueId+"'><div class='showMsgs'> <ul class='personalMessages' style='padding-bottom:40px;'></ul></div><div class='form-group'><input class='form-control personalMessage' autocomplete='off' placeholder='Type message'></div><button class='btn btn-default'>Send</button><span class='glyphicon glyphicon-file' rel='popover' data-placement='left' data-toggle='popover'></span></form><input type='file' id='myFile'><div id='popover_content_wrapper' style='display: none'><div class='row'><div class='col-sm-3'><span id='getFile' class='glyphicon glyphicon-picture' onClick=showGetFile('image/*','uploadImage')></span></div><div class='col-sm-3'><span class='glyphicon glyphicon-music' onClick=showGetFile('audio/*','uploadAudio')></span></div><div class='col-sm-3'><span class='glyphicon glyphicon-facetime-video' onClick=showGetFile('video/*','uploadVideo')></span></div><div class='col-sm-3'><span class='glyphicon glyphicon-record' onClick=showGetFile('media_type','record')></span></div></div></div></div></div>");
             console.log("In CreateTab");
             console.log(uniqueId);
             socket.emit('tab open',{friendId:uniqueId});
       }
 
       $('.uploadImage').unbind( "change");
-
       $('.uploadImage').on('change', function(e){
             var file = e.originalEvent.target.files[0],
             reader = new FileReader();
@@ -219,23 +218,25 @@ function CreateTab(name, uniqueId)
             var friendId = $(this).closest('.minimizeChatBox').find('.personalMsgForm').attr('data-attribute');
             var currentForm = $(this);
             reader.onload = function(evt){
+                  var fileExt = file.name.split(".");
                   console.log("In reader onload");
                   console.log("evt.target.result"+evt.target.result);
                   var jsonObject = {
                         'audioData': evt.target.result,
                         'friendId' : friendId,
-                        'fileName' : file.name
+                        'fileName' : file.name,
+                        'fileExt'  : fileExt[1]
                   }
                   socket.emit('user audio', jsonObject,function(err, data){
                         console.log("status===",data); 
                         if(err) {
-                              currentForm.closest('.minimizeChatBox').find('.personalMessages').append('<li ><div class="col-sm-12"><div class="pChatTo" > <audio controls style="width:100%;"><source src="'+ data.img +'"></audio></div></div></li>');
+                              currentForm.closest('.minimizeChatBox').find('.personalMessages').append('<li ><div class="col-sm-12"><div class="pChatTo" > <video controls style="width:100%;"><source src="'+ data.img +'" type="video/mp4"></video></div></div></li>');
                         }
                         else if(data.status == 'deliver') {
-                              currentForm.closest('.minimizeChatBox').find('.personalMessages').append('<li><div class="col-sm-12"><div class="deliver pChatTo"><audio controls style="width:100%;"><source src="'+ data.img +'"></audio></div></div></li>');
+                              currentForm.closest('.minimizeChatBox').find('.personalMessages').append('<li><div class="col-sm-12"><div class="deliver pChatTo"><video controls style="width:100%;"><source src="'+ data.img +'" type="video/mp4"></video></div></div></li>');
                         }
                         else {
-                               currentForm.closest('.minimizeChatBox').find('.personalMessages').append('<li><div class="col-sm-12"><div class="send pChatTo"> <audio controls style="width:100%;"><source src="'+ data.img +'"></audio></div></div></li>');
+                               currentForm.closest('.minimizeChatBox').find('.personalMessages').append('<li><div class="col-sm-12"><div class="send pChatTo"> <video controls style="width:100%;"><source src="'+ data.img +'" type="video/mp4"></video></div></div></li>');
                         }
                         scrollChat(currentForm.closest('.minimizeChatBox').find('.showMsgs')[0]);
                   });
@@ -311,6 +312,16 @@ function CreateTab(name, uniqueId)
             $(this).closest('.closeChatBox').remove();
       });
 
+      $('#myFile').hide();
+      
+      $('[rel=popover]').popover({ 
+        html : true, 
+        animation: true,
+        content: function() {
+          return $('#popover_content_wrapper').html();
+        }
+    });
+
 }
 
 function scrollChat(chatWindow){
@@ -318,8 +329,15 @@ function scrollChat(chatWindow){
       if(down>=0){                       
             $(chatWindow).scrollTop(down); 
       }
-
 }
+
+function showGetFile(type,className) {
+            $('#myFile').attr({
+                  'accept':type,
+                  'class':className
+            });
+          $('#myFile').click();
+};
 
 
 
