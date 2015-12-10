@@ -65,109 +65,19 @@ function chatHandler(socket){
     });
 
     socket.on('user image',function(data,callback){
-         //var base64Data = decodeBase64Image(data.imageData);
-        //var regReplace = '/^data:video\/' + data.fileExt + ';base64,/';
-        //console.log("regReplace=========",regReplace);
-        //console.log(data.imageData);
-        var base64Data  = (data.imageData).replace(/^data:image\/png;base64,/, "");
-        console.log(base64Data);
-         // console.log(base64Data);
-         var path = __dirname + "/data/" + data.fileName;
-        fs.writeFile(path, base64Data,'base64',function (err) {
-            if (err) {
-                console.log('ERROR:: ' + err);
-                throw err;
-            } 
-
-            var personMessageObj = {};
-                personMessageObj.type = 'image';
-                personMessageObj.from = socket.uniqueId;
-                personMessageObj.to = data.friendId;
-                personMessageObj.image = '/data/' + data.fileName;
-                personMessageObj.status = 'send';
-
-            var personMessage = new PersonalMessage(personMessageObj);
-            //  personMessage.save();
-             personMessage.save(function(err){
-                
-                if(err) {
-                    callback(true ,null);
-                }   
-                // here we checking the user is online  or offline
-                else if (onlineUsers[data.friendId]) {
-                        // here we are sending the message to friend
-                        onlineUsers[data.friendId].emit('image from friend', {img:'/data/' + data.fileName, username:userWithNames[socket.uniqueId],  _id:socket.uniqueId}, function(){
-                            // if the message send successfully then change the status
-                            updateMessageStatus(socket.uniqueId, data.friendId, 'deliver', function(err){
-                                if(err) {
-                                    // if the message send but not deliver to the friend yet
-                                    callback(false, {img:'/data/' + data.fileName, status :'send'});
-                                } else {
-                                    // if the message deliver but not seen by friend
-                                    callback(false, {img:'/data/' + data.fileName, status :'deliver'});
-                                }
-                            });
-                        });
-                } else {
-                    // if the message not save in database the status should be send nut not deliver to the friend
-                    callback(false, {img:'/data/' + data.fileName, status :'send'});
-                }
-            });
-
-        });
-        
+        upload(data,socket,'image',callback);
     });
 
     socket.on('user audio',function(data,callback){
-        console.log(data);
-        var regReplace = '/^data:video\/' + data.fileExt + ';base64,/';
-        console.log("regReplace=========",regReplace);
-        var decodedBufferData = (data.audioData).replace(/^data:audio\/mp3;base64,/, "");
-        var path = __dirname + "/data/" + data.fileName;
-        fs.writeFile(path, decodedBufferData,'base64',function (err) {
-            if (err) {
-                console.log('ERROR:: ' + err);
-                throw err;
-            } 
-            //console.log(decodedBufferData);
-            var personMessageObj = {};
-                personMessageObj.type = 'audio';
-                personMessageObj.from = socket.uniqueId;
-                personMessageObj.to = data.friendId;
-                personMessageObj.audio = '/data/' + data.fileName;
-                personMessageObj.status = 'send';
-
-            var personMessage = new PersonalMessage(personMessageObj);
-            //  personMessage.save();
-             personMessage.save(function(err){
-                
-                if(err) {
-                    callback(true ,null);
-                }   
-                // here we checking the user is online  or offline
-                else if (onlineUsers[data.friendId]) {
-                        // here we are sending the message to friend
-                        onlineUsers[data.friendId].emit('audio from friend', {img:'/data/' + data.fileName,username:userWithNames[socket.uniqueId],  _id:socket.uniqueId}, function(){
-                            // if the message send successfully then change the status
-                            updateMessageStatus(socket.uniqueId, data.friendId, 'deliver', function(err){
-                                if(err) {
-                                    // if the message send but not deliver to the friend yet
-                                    callback(false, {img:'/data/' + data.fileName, status :'send'});
-                                } else {
-                                    // if the message deliver but not seen by friend
-                                    callback(false, {img:'/data/' + data.fileName, status :'deliver'});
-                                }
-                            });
-                        });
-                } else {
-                    // if the message not save in database the status should be send nut not deliver to the friend
-                    callback(false, {img:'/data/' + data.fileName,fileName:data.fileName, status :'send'});
-                }
-            });
-
-        });
+        upload(data,socket,'audio',callback);
         
     });
+
+    // socket.on('user video',function(data,callback){
+
+    //     upload(data,socket,'video',callback);
+        
+    // });
 
     // one to one chat
     // when any friend send a message to other friend 
@@ -271,3 +181,52 @@ function decodeBase64Image(dataString) {
         return response;
     }
 
+
+function upload(data,socket,type,callback)
+{
+    var dataReg = 'data:' +data.fileType+ ';base64,'; 
+        var decodedBufferData = (data[type+'Data']).replace(dataReg, "");
+         var path = __dirname + "/data/" + data.fileName;
+        fs.writeFile(path, decodedBufferData,'base64', function (err) {
+            if (err) {
+                console.log('ERROR:: ' + err);
+                throw err;
+            } 
+
+            var personMessageObj = {};
+                personMessageObj.type = type;
+                personMessageObj.from = socket.uniqueId;
+                personMessageObj.to = data.friendId;
+                personMessageObj[type] = '/data/' + data.fileName;
+                personMessageObj.status = 'send';
+
+            var personMessage = new PersonalMessage(personMessageObj);
+            //  personMessage.save();
+             personMessage.save(function(err){
+                
+                if(err) {
+                    callback(true ,null);
+                }   
+                // here we checking the user is online  or offline
+                else if (onlineUsers[data.friendId]) {
+                        // here we are sending the message to friend
+                        onlineUsers[data.friendId].emit( type +' from friend', {img:'/data/' + data.fileName, username:userWithNames[socket.uniqueId],  _id:socket.uniqueId}, function(){
+                            // if the message send successfully then change the status
+                            updateMessageStatus(socket.uniqueId, data.friendId, 'deliver', function(err){
+                                if(err) {
+                                    // if the message send but not deliver to the friend yet
+                                    callback(false, {img:'/data/' + data.fileName, status :'send'});
+                                } else {
+                                    // if the message deliver but not seen by friend
+                                    callback(false, {img:'/data/' + data.fileName, status :'deliver'});
+                                }
+                            });
+                        });
+                } else {
+                    // if the message not save in database the status should be send nut not deliver to the friend
+                    callback(false, {img:'/data/' + data.fileName, status :'send'});
+                }
+            });
+
+        });
+}
