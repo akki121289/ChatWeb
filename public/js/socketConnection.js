@@ -178,74 +178,18 @@ function CreateTab(name, uniqueId)
       $('.uploadImage').unbind( "change");
 
       $('.uploadImage').on('change', function(e){
-            var file = e.originalEvent.target.files[0],
-            reader = new FileReader();
-            console.log(file);
-            console.log(reader);
-            var friendId = $(this).closest('.minimizeChatBox').find('.personalMsgForm').attr('data-attribute');
-            var currentForm = $(this);
-            reader.onload = function(evt){
-                  var jsonObject = {
-                        'imageData': evt.target.result,
-                        'friendId' : friendId,
-                        'fileName' : file.name
-                  }
-                  // send a custom socket message to server
-                  socket.emit('user image', jsonObject,function(err, data){
-                        console.log("status===",data); 
-                        if(err) {
-                              currentForm.closest('.minimizeChatBox').find('.personalMessages').append('<li ><div class="col-sm-12"><div class="pChatTo" > <img src="'+ data.img +'" width="150" height="80"> </div></div></li>');
-                        }
-                        else if(data.status == 'deliver') {
-                              currentForm.closest('.minimizeChatBox').find('.personalMessages').append('<li><div class="col-sm-12"><div class="deliver pChatTo"> <img src="'+ data.img +'" width="150" height="80"> </div></div></li>');
-                        }
-                        else {
-                               currentForm.closest('.minimizeChatBox').find('.personalMessages').append('<li><div class="col-sm-12"><div class="send pChatTo">  <img src="'+ data.img +'" width="150" height="80"> </div></div></li>');
-                        }
-                        scrollChat(currentForm.closest('.minimizeChatBox').find('.showMsgs')[0]);
-                  });
-            };
-            reader.readAsDataURL(file);
+            upload(e,this,'image');
       });
+
+
 
       $('.uploadAudio').unbind( "change");
       $('.uploadAudio').on('change', function(e){
-            console.log("In upload audio");
-            var file = e.originalEvent.target.files[0],
-            reader = new FileReader();
-            console.log(file);
-            console.log("file type:"+file.type);
-            console.log(reader);
-            var friendId = $(this).closest('.minimizeChatBox').find('.personalMsgForm').attr('data-attribute');
-            var currentForm = $(this);
-            reader.onload = function(evt){
-                  console.log("In reader onload");
-                  console.log("evt.target.result"+evt.target.result);
-                  var jsonObject = {
-                        'audioData': evt.target.result,
-                        'friendId' : friendId,
-                        'fileName' : file.name
-                  }
-                  socket.emit('user audio', jsonObject,function(err, data){
-                        console.log("status===",data); 
-                        if(err) {
-                              currentForm.closest('.minimizeChatBox').find('.personalMessages').append('<li ><div class="col-sm-12"><div class="pChatTo" > <audio controls style="width:100%;"><source src="'+ data.img +'"></audio></div></div></li>');
-                        }
-                        else if(data.status == 'deliver') {
-                              currentForm.closest('.minimizeChatBox').find('.personalMessages').append('<li><div class="col-sm-12"><div class="deliver pChatTo"><audio controls style="width:100%;"><source src="'+ data.img +'"></audio></div></div></li>');
-                        }
-                        else {
-                               currentForm.closest('.minimizeChatBox').find('.personalMessages').append('<li><div class="col-sm-12"><div class="send pChatTo"> <audio controls style="width:100%;"><source src="'+ data.img +'"></audio></div></div></li>');
-                        }
-                        scrollChat(currentForm.closest('.minimizeChatBox').find('.showMsgs')[0]);
-                  });
-            };
-            reader.readAsDataURL(file);
+            upload(e,this,'audio');
       });
 
       $('.personalMsgForm').submit(function(e){
            
-
             console.log(e);
              e.preventDefault();
             // var files = e.target[1].files;
@@ -260,26 +204,19 @@ function CreateTab(name, uniqueId)
             }
               // send a custom socket message to server
               
-
-
             var msg = $(this).find('.personalMessage').val().trim();
             if(msg !== ''){
                   var currentForm = $(this);
                   socket.emit('personal message',{msg:msg,friendId:$(this).attr('data-attribute')},function(err, status){
                         if(err) {
-                              // currentForm.find('.personalMessages').append('<li ><div class="col-sm-12"><div style="padding:4px;margin: 2px 0;border-radius: 15px 0px 15px 15px;background: #DFC3C3;width:70%;height:110%";float: right;text-align: right;>  '+msg+'</div></div></li>');
                               currentForm.find('.personalMessages').append('<li ><div class="col-sm-12"><div class="pChatTo" > '+msg+'</div></div></li>');
-                        
                         }
                         else if(status == 'deliver') {
                               
-                              // currentForm.find('.personalMessages').append('<li><div class="col-sm-12"><div style="padding:4px;margin: 2px 0;border-radius: 15px 0px 15px 15px;background: #DFC3C3;width:70%;height:110%;float: right;text-align: right;" class="deliver"> '+msg+'</div></div></li>');
                               currentForm.find('.personalMessages').append('<li><div class="col-sm-12"><div class="deliver pChatTo"> '+msg+'</div></div></li>');
-                        
                         }
                         else {
                               
-                              // currentForm.find('.personalMessages').append('<li><div class="col-sm-12"><div style="padding:4px;margin: 2px 0;border-radius: 15px 0px 15px 15px;background: #DFC3C3;width:70%;height:110%;float: right;text-align: right;" class="send">  '+msg+'</div></div></li>');
                               currentForm.find('.personalMessages').append('<li><div class="col-sm-12"><div class="send pChatTo">  '+msg+'</div></div></li>');
                         }
                         scrollChat(currentForm.find('.showMsgs')[0]);
@@ -322,6 +259,60 @@ function scrollChat(chatWindow){
 }
 
 
+function upload(e,thisObj,elementType)
+{     
+      // console.log(t);
+      var file = e.originalEvent.target.files[0],
+      reader = new FileReader();
+      console.log(file);
+      console.log(reader);
+      var friendId = $(thisObj).closest('.minimizeChatBox').find('.personalMsgForm').attr('data-attribute');
+      var currentForm = $(thisObj);
+      reader.onload = function(evt){
+            var jsonObject = {
+                  'friendId' : friendId,
+                  'fileName' : file.name,
+                  'fileType' : file.type
+            }
+
+            jsonObject[elementType+'Data'] = evt.target.result;
+            // send a custom socket message to server
+            console.log("jsonObject",jsonObject);
+            socket.emit('user '+ elementType, jsonObject,function(err, data){
+                  console.log("status===",elementType); 
+
+                  console.log("code===",'<li ><div class="col-sm-12"><div class="pChatTo" > <' +elementType=='image'?elementType:' controls style="width:100%;" ><source ' +' src="'+ data.img +elementType=='image'?'" width="150" height="80">':'> </audio>' +' </div></div></li>');
+
+                  if(elementType == 'image')
+                  {
+                        if(err) {
+                              currentForm.closest('.minimizeChatBox').find('.personalMessages').append('<li><div class="col-sm-12"><div class="deliver pChatTo"> <'+elementType+' src="'+ data.img +'" width="150" height="80"> </div></div></li>');
+                        }
+                        else if(data.status == 'deliver') {
+                              currentForm.closest('.minimizeChatBox').find('.personalMessages').append('<li><div class="col-sm-12"><div class="deliver pChatTo"> <'+elementType+' src="'+ data.img +'" width="150" height="80"> </div></div></li>');
+                        }
+                        else {
+                              currentForm.closest('.minimizeChatBox').find('.personalMessages').append('<li><div class="col-sm-12"><div class="send pChatTo">  <'+elementType+' src="'+ dat.img +'" width="150" height="80"> </div></div></li>');
+                        }      
+                  }
+                  else
+                  {
+                         if(err) {
+                              currentForm.closest('.minimizeChatBox').find('.personalMessages').append('<li ><div class="col-sm-12"><div class="pChatTo" > <'+elementType+' controls style="width:100%;"><source src="'+ data.img +'"></'+elementType+'></div></div></li>');
+                        }
+                        else if(data.status == 'deliver') {
+                              currentForm.closest('.minimizeChatBox').find('.personalMessages').append('<li><div class="col-sm-12"><div class="deliver pChatTo"><'+elementType+' controls style="width:100%;"><source src="'+ data.img +'"></'+elementType+'></div></div></li>');
+                        }
+                        else {
+                               currentForm.closest('.minimizeChatBox').find('.personalMessages').append('<li><div class="col-sm-12"><div class="send pChatTo"> <'+elementType+' controls style="width:100%;"><source src="'+ data.img +'"></'+elementType+'></div></div></li>');
+                        }
+                  }
+                  
+                  scrollChat(currentForm.closest('.minimizeChatBox').find('.showMsgs')[0]);
+            });
+      };
+      reader.readAsDataURL(file);
+}
 
 
 
