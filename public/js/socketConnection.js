@@ -127,13 +127,13 @@ $(document).ready(function(){
                    else 
                         html += '<li><div class="col-sm-12"><div class=" pChatTo" >';
 
-                  if(data[i].type == 'image')
+                   if(data[i].type == 'message')
+                         html += data[i][data[i].type];  
+                  else if(data[i].type == 'image')
                         html += '<img src="'+ data[i][data[i].type] +'" width="150" height="80">'; 
-                  else if(data[i].type == 'audio')
-                        html += '<audio controls style="width:100%;"><source src="'+ data[i][data[i].type] +'"></audio>'
                   else
-                        html += data[i][data[i].type];  
-                  html += '</div></div></li>';
+                       html += '<'+ data[i].type +' controls style="width:100%;"><source src="'+ data[i][data[i].type] +'"></'+data[i].type+'>'
+                 html += '</div></div></li>';
             }
             if ($('#'+uniqueId).length){
                   $('#'+uniqueId).find('.personalMessages').append(html);

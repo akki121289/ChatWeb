@@ -9,6 +9,7 @@ var personalMessage = Schema({
 	message: String,
 	image : String,
 	audio : String,
+	video : String,
 	status:{ type:String, default:'send' },
 	createdAt : {type:String, default:Date.now}
 });
