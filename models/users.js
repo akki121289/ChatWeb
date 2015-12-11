@@ -10,7 +10,9 @@ var users = Schema({
 	country : String,
 	status: { type: Boolean, default: false },
 	groups : [
-		groupName : String
+		{
+			groupName : String
+		}
 	]
 });
 

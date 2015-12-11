@@ -33,3 +33,16 @@ html(lang='en')
             button Send
       //div.col-sm-12#chat_tabs(style='position:fixed;bottom:0px;')
       div.col-sm-12#chat_tabs
+      #ImageModal.modal.fade(role='dialog')
+        .modal-dialog
+          .modal-content
+            .modal-body
+              img#ImageMsg.img-responsive(src='', alt='')
+      #VideoModal.modal.fade(role='dialog')
+        .modal-dialog
+          .modal-content
+            .modal-body
+              .embed-responsive.embed-responsive-16by9
+                iframe#VideoMsg.embed-responsive-item(src='')
+
+            

@@ -39,7 +39,7 @@ $(document).ready(function(){
 
       socket.on('image from friend',function(data,callback){
             if ($('#'+data._id).length){
-                  $('#'+data._id).find('.personalMessages').append('<li><div class="col-sm-12"><div class="pChatFrom"> <img src="'+data.img+'" width="150" height="80"> </div></div></li>');
+                  $('#'+data._id).find('.personalMessages').append('<li><div class="col-sm-12"><div class="pChatFrom showImageModal" data-toggle="modal" data-target="#ImageModal"><img src="'+data.img+'" width="150" height="80"> </div></div></li>');
                   scrollChat($('#'+data._id).find('.showMsgs')[0]);
             }else{
                   CreateTab(data.username,data._id);
@@ -50,7 +50,7 @@ $(document).ready(function(){
 
       socket.on('video from friend',function(data,callback){
             if ($('#'+data._id).length){
-                  $('#'+data._id).find('.personalMessages').append('<li ><div class="col-sm-12"><div class="pChatFrom" > <video controls style="width:100%;"><source src="'+ data.img +'"></video></div></div></li>');
+                  $('#'+data._id).find('.personalMessages').append('<li><div class="col-sm-12"><div class="pChatFrom showVideoModal" data-toggle="modal" data-target="#VideoModal" > <video controls style="width:100%;"><source src="'+ data.img +'"></video></div></div></li>');
                   scrollChat($('#'+data._id).find('.showMsgs')[0]);
             }else{
                   CreateTab(data.username,data._id);
@@ -61,7 +61,7 @@ $(document).ready(function(){
 
       socket.on('audio from friend',function(data,callback){
             if ($('#'+data._id).length){
-                  $('#'+data._id).find('.personalMessages').append('<li ><div class="col-sm-12"><div class="pChatFrom" > <audio controls style="width:100%;"><source src="'+ data.img +'"></audio></div></div></li>');
+                  $('#'+data._id).find('.personalMessages').append('<li><div class="col-sm-12"><div class="pChatFrom" > <audio controls style="width:100%;"><source src="'+ data.img +'"></audio></div></div></li>');
                   scrollChat($('#'+data._id).find('.showMsgs')[0]);
             }else{
                   CreateTab(data.username,data._id);
@@ -149,7 +149,6 @@ function CreateTab(name, uniqueId)
       if(! $('#'+uniqueId+'userTab').length){
             // $('#chat_tabs').append("<div class='col-sm-3 closeChatBox' style='margin-right:5px;background:white;' id='"+uniqueId+"userTab'><div class='row chatBoxTitleBar'><div class='panel panel-primary' style='margin-bottom:auto'><div class='panel-heading'>"+name+"<ul class='list-inline' style='list-style-type:none;float:right'><li><span class='closeBox glyphicon glyphicon-remove' aria-hidden='true'></span></li><li><span class='glyphicon glyphicon-unchecked maximize' aria-hidden='true'></span></li><li><span class='glyphicon glyphicon-minus minimize' aria-hidden='true'></span></li></ul></div></div></div><div class='row minimizeChatBox'><form class='form-inline personalMsgForm' role='form' data-attribute='"+uniqueId+"' id='"+uniqueId+"'><div class='showMsgs' style='width:100%;float:left;height:110px;overflow: scroll;'> <ul class='personalMessages' style='padding-bottom:40px; list-style-type:none;'></ul></div><div class='form-group'><input class='form-control personalMessage' autocomplete='off' placeholder='Type message'></div><button class='btn btn-default'>Send</button></form></div></div>");
             $('#chat_tabs').append("<div class='col-sm-3 closeChatBox' id='"+uniqueId+"userTab'><div class='row chatBoxTitleBar'><div class='panel panel-primary' style='margin-bottom:auto'><div class='panel-heading'>"+name+"<ul class='list-inline' style='float:right;'><li><span class='closeBox glyphicon glyphicon-remove' aria-hidden='true'></span></li><li><span class='glyphicon glyphicon-unchecked maximize' aria-hidden='true'></span></li><li><span class='glyphicon glyphicon-minus minimize' aria-hidden='true'></span></li></ul></div></div></div><div class='row minimizeChatBox'><form class='form-inline personalMsgForm' role='form' data-attribute='"+uniqueId+"' id='"+uniqueId+"'><div class='showMsgs'> <ul class='personalMessages' style='padding-bottom:40px;'></ul></div><div class='form-group'><input class='form-control personalMessage' autocomplete='off' placeholder='Type message'></div><button class='btn btn-default'>Send</button></form><input class='uploadData' type='file' name='pic' accept='image/* , video/* , audio/*' ></div></div>");
-            console.log("In CreateTab");
             console.log(uniqueId);
             socket.emit('tab open',{friendId:uniqueId});
       }
@@ -223,6 +222,16 @@ function CreateTab(name, uniqueId)
       });
       $('.closeBox').click(function(){
             $(this).closest('.closeChatBox').remove();
+      });
+
+      $('body').on('click','.showImageModal', function() {
+            var imageSource = $(this).find('img').attr('src');
+            $('#ImageMsg').attr('src',imageSource);
+      });
+
+      $('body').on('click','.showVideoModal', function() {
+            var videoSource = $(this).find('source').attr('src');
+            $('#VideoMsg').attr('src',videoSource);
       });
 }
 
