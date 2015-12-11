@@ -64,8 +64,6 @@ function chatHandler(socket){
         });
     });
 
-
-
     socket.on('user upload',function(data,callback){
         var elementType = data.fileType.split('/');
         upload(data,socket,elementType[0],callback);
