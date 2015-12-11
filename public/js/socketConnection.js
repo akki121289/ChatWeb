@@ -39,7 +39,7 @@ $(document).ready(function(){
 
       socket.on('image from friend',function(data,callback){
             if ($('#'+data._id).length){
-                  $('#'+data._id).find('.personalMessages').append('<li><div class="col-sm-12"><div class="pChatFrom showImageModal" data-toggle="modal" data-target="#ImageModal"><img src="'+data.img+'" width="150" height="80"> </div></div></li>');
+                  $('#'+data._id).find('.personalMessages').append('<li><div class="col-sm-12"><div class="pChatFrom"><div class="showImageModal" data-toggle="modal" data-target="#ImageModal"><img src="'+data.img+'" width="150" height="80"></div></div></div></li>');
                   scrollChat($('#'+data._id).find('.showMsgs')[0]);
             }else{
                   CreateTab(data.username,data._id);
@@ -50,7 +50,7 @@ $(document).ready(function(){
 
       socket.on('video from friend',function(data,callback){
             if ($('#'+data._id).length){
-                  $('#'+data._id).find('.personalMessages').append('<li><div class="col-sm-12"><div class="pChatFrom showVideoModal" data-toggle="modal" data-target="#VideoModal" > <video controls style="width:100%;"><source src="'+ data.img +'"></video></div></div></li>');
+                  $('#'+data._id).find('.personalMessages').append('<li><div class="col-sm-12"><div class="pChatFrom" > <div class="showVideoModal" data-toggle="modal" data-target="#VideoModal"> <video controls style="width:100%;"><source src="'+ data.img +'"></video></div></div></div></li>');
                   scrollChat($('#'+data._id).find('.showMsgs')[0]);
             }else{
                   CreateTab(data.username,data._id);
@@ -127,12 +127,23 @@ $(document).ready(function(){
                    else 
                         html += '<li><div class="col-sm-12"><div class=" pChatTo" >';
 
-                   if(data[i].type == 'message')
-                         html += data[i][data[i].type];  
-                  else if(data[i].type == 'image')
-                        html += '<img src="'+ data[i][data[i].type] +'" width="150" height="80">'; 
-                  else
-                       html += '<'+ data[i].type +' controls style="width:100%;"><source src="'+ data[i][data[i].type] +'"></'+data[i].type+'>'
+                   if(data[i].type == 'message'){
+                        html += data[i][data[i].type];  
+                  }
+                  else if(data[i].type == 'image'){
+                        html += '<div class="showImageModal" data-toggle="modal" data-target="#ImageModal">';
+                        html += '<img src="'+ data[i][data[i].type] +'" width="150" height="80"></div>'; 
+                  }
+                  else{
+                        if(data[i].type=="video"){
+                              html+='<div class="showVideoModal" data-toggle="modal" data-target="#VideoModal">';
+                              html += '<'+ data[i].type +' controls style="width:100%;"><source src="'+ data[i][data[i].type] +'"></'+data[i].type+'></div>'
+                        }
+                        else{
+                              html += '<'+ data[i].type +' controls style="width:100%;"><source src="'+ data[i][data[i].type] +'"></'+data[i].type+'>'      
+                        }
+                        
+                  }
                  html += '</div></div></li>';
             }
             if ($('#'+uniqueId).length){
@@ -156,7 +167,7 @@ function CreateTab(name, uniqueId)
       $('.uploadData').unbind( "change");
 
       $('.uploadData').on('change', function(e){
-            upload(e,this,'image');
+            upload(e,this);
       });
 
       // $('.uploadAudio').unbind( "change");
@@ -242,7 +253,7 @@ function scrollChat(chatWindow){
       }
 }
 
-function upload(e,thisObj,elementType1)
+function upload(e,thisObj)
 {     
       // console.log(t);
       var file = e.originalEvent.target.files[0],
