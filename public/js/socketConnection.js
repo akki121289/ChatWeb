@@ -39,7 +39,7 @@ $(document).ready(function(){
 
       socket.on('image from friend',function(data,callback){
             if ($('#'+data._id).length){
-                  $('#'+data._id).find('.personalMessages').append('<li><div class="col-sm-12"><div class="pChatFrom"><div class="showImageModal" data-toggle="modal" data-target="#ImageModal"><img src="'+data.img+'" width="150" height="80"></div></div></div></li>');
+                  $('#'+data._id).find('.personalMessages').append('<li><div class="col-sm-12"><div class="pChatFrom"><img class="showImageModal" data-toggle="modal" data-target="#openModal" src="'+data.img+'" width="150" height="80"></div></div></li>');
                   scrollChat($('#'+data._id).find('.showMsgs')[0]);
             }else{
                   CreateTab(data.username,data._id);
@@ -50,7 +50,7 @@ $(document).ready(function(){
 
       socket.on('video from friend',function(data,callback){
             if ($('#'+data._id).length){
-                  $('#'+data._id).find('.personalMessages').append('<li><div class="col-sm-12"><div class="pChatFrom" > <div class="showVideoModal" data-toggle="modal" data-target="#VideoModal"> <video controls style="width:100%;"><source src="'+ data.img +'"></video></div></div></div></li>');
+                  $('#'+data._id).find('.personalMessages').append('<li><div class="col-sm-12"><div class="pChatFrom" > <video controls style="width:100%;" class="showVideoModal" data-toggle="modal" data-target="#openModal"><source src="'+ data.img +'"></video></div></div></li>');
                   scrollChat($('#'+data._id).find('.showMsgs')[0]);
             }else{
                   CreateTab(data.username,data._id);
@@ -131,18 +131,15 @@ $(document).ready(function(){
                         html += data[i][data[i].type];  
                   }
                   else if(data[i].type == 'image'){
-                        html += '<div class="showImageModal" data-toggle="modal" data-target="#ImageModal">';
-                        html += '<img src="'+ data[i][data[i].type] +'" width="150" height="80"></div>'; 
+                        html += '<img class="showImageModal" data-toggle="modal" data-target="#openModal" src="'+ data[i][data[i].type] +'" width="150" height="80"></div>'; 
                   }
                   else{
                         if(data[i].type=="video"){
-                              html+='<div class="showVideoModal" data-toggle="modal" data-target="#VideoModal">';
-                              html += '<'+ data[i].type +' controls style="width:100%;"><source src="'+ data[i][data[i].type] +'"></'+data[i].type+'></div>'
+                              html += '<'+ data[i].type +' controls style="width:100%;" class="showVideoModal" data-toggle="modal" data-target="#openModal"><source src="'+ data[i][data[i].type] +'"></'+data[i].type+'></div>'
                         }
                         else{
                               html += '<'+ data[i].type +' controls style="width:100%;"><source src="'+ data[i][data[i].type] +'"></'+data[i].type+'>'      
                         }
-                        
                   }
                  html += '</div></div></li>';
             }
@@ -236,13 +233,17 @@ function CreateTab(name, uniqueId)
       });
 
       $('body').on('click','.showImageModal', function() {
-            var imageSource = $(this).find('img').attr('src');
-            $('#ImageMsg').attr('src',imageSource);
+            var imageSource = $(this).attr('src');
+            $('#openModal .modal-body').append('<img id="modalContent" src="'+imageSource+'" class="img-responsive">');
       });
 
       $('body').on('click','.showVideoModal', function() {
-            var videoSource = $(this).find('source').attr('src');
-            $('#VideoMsg').attr('src',videoSource);
+            var videoSource = $(this).find('source').attr('src');       
+            $('#openModal .modal-body').append('<div id="modalContent" class="embed-responsive embed-responsive-16by9"><iframe src="'+videoSource+'" class="embed-responsive-item"></iframe></div>');
+      });
+
+      $('#openModal').on('hide.bs.modal', function (e) {
+            $('#modalContent').remove();
       });
 }
 
@@ -290,9 +291,20 @@ function upload(e,thisObj)
                               currentForm.closest('.minimizeChatBox').find('.personalMessages').append('<li><div class="col-sm-12"><div class="send pChatTo">  <'+elementType[0]+' src="'+ dat.img +'" width="150" height="80"> </div></div></li>');
                         }      
                   }
+                  else if(elementType[0] == 'video'){
+                        if(err) {
+                              currentForm.closest('.minimizeChatBox').find('.personalMessages').append('<li ><div class="col-sm-12"><div class="pChatTo" > <'+elementType[0]+' controls style="width:100%;" class="showVideoModal" data-toggle="modal" data-target="#openModal"><source src="'+ data.img +'"></'+elementType[0]+'></div></div></li>');
+                        }
+                        else if(data.status == 'deliver') {
+                              currentForm.closest('.minimizeChatBox').find('.personalMessages').append('<li><div class="col-sm-12"><div class="deliver pChatTo"><'+elementType[0]+' controls style="width:100%;" class="showVideoModal" data-toggle="modal" data-target="#openModal"><source src="'+ data.img +'"></'+elementType[0]+'></div></div></li>');
+                        }
+                        else {
+                               currentForm.closest('.minimizeChatBox').find('.personalMessages').append('<li><div class="col-sm-12"><div class="send pChatTo"> <'+elementType[0]+' controls style="width:100%;" class="showVideoModal" data-toggle="modal" data-target="#openModal"><source src="'+ data.img +'"></'+elementType[0]+'></div></div></li>');
+                        }
+                  }
                   else
                   {
-                         if(err) {
+                        if(err) {
                               currentForm.closest('.minimizeChatBox').find('.personalMessages').append('<li ><div class="col-sm-12"><div class="pChatTo" > <'+elementType[0]+' controls style="width:100%;"><source src="'+ data.img +'"></'+elementType[0]+'></div></div></li>');
                         }
                         else if(data.status == 'deliver') {
