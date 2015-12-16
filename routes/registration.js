@@ -32,7 +32,7 @@ module.exports = function(server){
 	    path: '/userlist',
 	    handler: function (request, reply) {
 	    	if(request.session.get('email')){
-	        	reply.view('userlist',{ _id:request.session.get('_id'), email:request.session.get('email'), username:request.session.get('username'),groupnames:request.session.get('groupnames')});
+	        	reply.view('userlist',{ _id:request.session.get('_id'), email:request.session.get('email'), username:request.session.get('username'),groupIds:request.session.get('groupIds')});
 	    	}else{
 	    		reply.redirect('/login');
 	    	}
@@ -82,8 +82,8 @@ module.exports = function(server){
 						Users.findOne({"email" : request.payload.username },function(err ,user){
 							request.session.set('username',user.username);
 							console.log(user.username);
-							request.session.set('groupnames',user.groups);
-							console.log(user.groups);
+							request.session.set('groupIds',user.groups);
+							console.log("user groups",user.groups);
 							reply.redirect('/userlist');
 						});
 		    			

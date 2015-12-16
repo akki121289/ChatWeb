@@ -3,7 +3,7 @@ $(document).ready(function(){
       var $username = $('#username');
       var $_id = $('#_id');
       var $onlineUser = $('#onlineUser');
-      var $groupNames = $('#groupnames');
+      var $groupIds = $('#groupIds');
       var $chatRooms = $('#chatRooms')
       var $msgForm = $('#msgForm');
       var $userId = $('#userId');
@@ -31,15 +31,15 @@ $(document).ready(function(){
             $totalonline.html(' '+numbers+' ');
       });
       // emit this event because notification other user that i ma became online :)
-      socket.emit('user join',{ _id:$_id.val(), userId:$userId.val(), username:$username.val(), groupNames:$groupNames.val() });
+      socket.emit('user join',{ _id:$_id.val(), userId:$userId.val(), username:$username.val(), groupIds:$groupIds.val() });
       // emit this event to know the groups available for the online user
-      socket.on('groups available',function(groups){
-            var groups=groups.split(',');
-            var html='';
-            for(var i=0;i<groups.length;i++){
-                  html += '<li id="'+groups[i]+'Group" class="list-group-item" onclick=createGroupTab("'+groups[i]+'")>' +groups[i]+ '</li>';
+      socket.on('groups available',function(data,callback){
+            var html = '';
+            for(var i=0;i<data[0].groups.length;i++){
+                  html += '<li id="'+data[0].groups[i].groupId+'" class="list-group-item" onclick=createGroupTab("'+data[0].groups[i].groupName+'","'+data[0].groups[i].groupId+'") >' +data[0].groups[i].groupName+ '</li>';
             }
             $chatRooms.html(html);
+            callback();
       });
       // updating the list of online user when any user became online
       socket.on('online user',function(user){
@@ -163,31 +163,33 @@ $(document).ready(function(){
       socket.on('updateGroupChat',function(data){
             console.log(data.name);
             console.log(data.groupId);
+            console.log(data.groupName);
             console.log(data.msg);
             if($('#'+data.groupId+'GroupTab').length){
                   $('#'+data.groupId+'GroupTab').find('.groupMessages').append('<li><div class="col-sm-12"><div class="pChatFrom"> '+data.msg+'</div></div></li>');
                   //scrollChat($('#'+data._id).find('.showMsgs')[0]);
             }else{
-                  createGroupTab(data.groupId);
+                  createGroupTab(data.groupName,data.groupId);
             }
             //$("#connected").append(data.name+" "+data.msg+"<br/>");
       });
 
 });
 
-function createGroupTab(groupName){
-      if(! $('#'+groupName+'GroupTab').length){
-            $('#chat_tabs').append("<div class='col-sm-3 closeChatBox' id='"+groupName+"GroupTab'><div class='row chatBoxTitleBar'><div class='panel panel-primary' style='margin-bottom:auto'><div class='panel-heading'>"+groupName+"<ul class='list-inline' style='float:right;'><li><span class='closeBox glyphicon glyphicon-remove' aria-hidden='true'></span></li><li><span class='glyphicon glyphicon-unchecked maximize' aria-hidden='true'></span></li><li><span class='glyphicon glyphicon-minus minimize' aria-hidden='true'></span></li></ul></div></div></div><div class='row minimizeChatBox'><form class='form-inline groupMsgForm' role='form' data-attribute='"+groupName+"' id=''><div class='showMsgs'> <ul class='groupMessages' style='padding-bottom:40px;'></ul></div><div class='form-group'><input class='form-control groupMessage' autocomplete='off' placeholder='Type message'></div><button class='btn btn-default'>Send</button></form><input class='uploadData' type='file' name='pic' accept='image/* , video/* , audio/*' ></div></div>");      
+function createGroupTab(groupName,groupId){
+      if(! $('#'+groupId+'GroupTab').length){
+            $('#chat_tabs').append("<div class='col-sm-3 closeChatBox' id='"+groupId+"GroupTab'><div class='row chatBoxTitleBar'><div class='panel panel-primary' style='margin-bottom:auto'><div class='panel-heading'>"+groupName+"<ul class='list-inline' style='float:right;'><li><span class='closeBox glyphicon glyphicon-remove' aria-hidden='true'></span></li><li><span class='glyphicon glyphicon-unchecked maximize' aria-hidden='true'></span></li><li><span class='glyphicon glyphicon-minus minimize' aria-hidden='true'></span></li></ul></div></div></div><div class='row minimizeChatBox'><form class='form-inline groupMsgForm' role='form' data-attribute='"+groupName+"' id='"+groupId+"'><div class='showMsgs'> <ul class='groupMessages' style='padding-bottom:40px;'></ul></div><div class='form-group'><input class='form-control groupMessage' autocomplete='off' placeholder='Type message'></div><button class='btn btn-default'>Send</button></form><input class='uploadData' type='file' name='pic' accept='image/* , video/* , audio/*' ></div></div>");      
       }  
 
       $('.groupMsgForm').submit(function(e){
             e.preventDefault();
             var username = $('#username').val();
-            var groupId = $(this).attr('data-attribute');
+            var groupName = $(this).attr('data-attribute');
+            var groupId = $(this).attr('id');
             var msg = $(this).find('.groupMessage').val().trim();
             if(msg !== ''){
                   var currentForm = $(this);
-                  socket.emit('send Group Messages',{ name:username, groupId:groupId, msg:msg },function(err){
+                  socket.emit('send Group Messages',{ name:username, groupId:groupId, groupName:groupName, msg:msg },function(err){
                         if(err){
                               throw err;
                         }

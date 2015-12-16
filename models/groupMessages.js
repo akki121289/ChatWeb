@@ -4,7 +4,7 @@ var Schema = mongoose.Schema;
 var groupMessages = Schema({
 	groupName : String,
 	groupId : String,
-	to : String,
+	from : String,
 	createAt : {type : String , default : Date.now},
 	msg : String
 });

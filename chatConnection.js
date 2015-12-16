@@ -51,11 +51,10 @@ function chatHandler(socket){
             socket.broadcast.emit('online user numbers',(Object.keys(userWithNames)).length);
             
             // brijesh --- show groups created by user
-            socket.emit("groups available",name.groupNames);
+            getGroups(name._id,socket);
             // join and broadcast to the joined room 
             socket.join('room1');
             //socket.emit('updateGroupChat', name.username,  'you have connected to room1');
-            //socket.broadcast.to('room1').emit('updateGroupChat',)
             
     });
     // this is just for display all the old broadcasted messages when any user became online
@@ -254,4 +253,11 @@ function upload(data,socket,type,callback)
             });
 
         });
+}
+
+function getGroups(userId,socket){
+    User.find({"_id" : userId},{"groups":1,"_id":0},function(err,data){
+        socket.emit("groups available",data,function(){
+        });
+    });
 }

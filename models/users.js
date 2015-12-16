@@ -9,7 +9,7 @@ var users = Schema({
 	gender : String,
 	country : String,
 	status: { type: Boolean, default: false },
-	groups : [String]
+	groups : { type : Array}
 });
 
 module.exports = mongoose.model('users', users);
