@@ -1,6 +1,7 @@
 var SocketIO = require('socket.io'),
 	Message = require('./models/message'),
 	PersonalMessage =require('./models/personalMessage'),
+    GroupMessage =require('./models/groupMessages'),
     User =require('./models/users'),
     mongoose = require('mongoose'),
     Schema = mongoose.Schema,
@@ -179,10 +180,35 @@ function chatHandler(socket){
 
     //call when to send group messages
     socket.on('send Group Messages',function(data,callback){
-        console.log(data);
-        socket.broadcast.to('room1').emit('updateGroupChat', data);
-        callback(false);
+        console.log("data request on group message socket======",data);
+        (new GroupMessage({
+            groupName : data.groupName,
+            groupId : data.groupId,
+            from : data.name,
+            msg : data.msg
+        })).save(function(err){
+            if(err) {
+                callback(true);
+            }   
+            else {
+                socket.broadcast.to('room1').emit('updateGroupChat', data);
+                callback(false);
+            }
+        });
     })
+
+    //call when old group messages are to be fetched
+    socket.on('groupTab Open',function(data,callback){
+        console.log(data);
+        console.log("In Group tab open");
+        // call the method to update the status of all messages as 'deliver'
+        GroupMessage.find({"groupId" : data.groupId}).sort('-createAt').limit(5).exec(function(err, messages){
+            // To display the old messages of the group
+            console.log("Group messages",messages);
+            //var obj = { messages : messages , uniqueId : data.friendId};
+            callback(messages);
+        });
+    });
 }
 
 function init(listener){

@@ -174,11 +174,24 @@ $(document).ready(function(){
             //$("#connected").append(data.name+" "+data.msg+"<br/>");
       });
 
+      /*socket.on('old Group Messages',function(messages){
+            console.log("old Group messages cccc",messages);
+            for(var i =messages.length -1 ; i>= 0; i--){
+                  $('#'+messages[i].groupId+'GroupTab').find('.groupMessages').append('<li><div class="col-sm-12"><div> '+messages[i].msg+'</div></div></li>');
+            }
+      });*/
+
 });
 
 function createGroupTab(groupName,groupId){
       if(! $('#'+groupId+'GroupTab').length){
             $('#chat_tabs').append("<div class='col-sm-3 closeChatBox' id='"+groupId+"GroupTab'><div class='row chatBoxTitleBar'><div class='panel panel-primary' style='margin-bottom:auto'><div class='panel-heading'>"+groupName+"<ul class='list-inline' style='float:right;'><li><span class='closeBox glyphicon glyphicon-remove' aria-hidden='true'></span></li><li><span class='glyphicon glyphicon-unchecked maximize' aria-hidden='true'></span></li><li><span class='glyphicon glyphicon-minus minimize' aria-hidden='true'></span></li></ul></div></div></div><div class='row minimizeChatBox'><form class='form-inline groupMsgForm' role='form' data-attribute='"+groupName+"' id='"+groupId+"'><div class='showMsgs'> <ul class='groupMessages' style='padding-bottom:40px;'></ul></div><div class='form-group'><input class='form-control groupMessage' autocomplete='off' placeholder='Type message'></div><button class='btn btn-default'>Send</button></form><input class='uploadData' type='file' name='pic' accept='image/* , video/* , audio/*' ></div></div>");      
+            socket.emit('groupTab Open',{groupId:groupId},function(messages){
+                  console.log("old Group messages cccc",messages);
+                  for(var i =messages.length -1 ; i>= 0; i--){
+                        $('#'+messages[i].groupId+'GroupTab').find('.groupMessages').append('<li><div class="col-sm-12"><div> '+messages[i].msg+'</div></div></li>');
+                  }
+            });
       }  
 
       $('.groupMsgForm').submit(function(e){
