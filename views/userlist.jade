@@ -11,31 +11,33 @@ html(lang='en')
     script(src='/public/js/createtab.js')
   body
     .container
-      H1 #{username}
-      input(type="hidden" name="target" value="#{email}" id="userId")
-      input(type="hidden" name="target" value="#{username}" id="username")
-      input(type="hidden" name="target" value="#{_id}" id="_id")
-      div.col-sm-12
-        #logour <a href='/logout'> LOGOUT </a>
+      h1 #{username}
+      input#userId(type='hidden', name='target', value="#{email}")
+      input#username(type='hidden', name='target', value="#{username}")
+      input#_id(type='hidden', name='target', value="#{_id}")
+      input#groupnames(type='hidden', name='target', value="#{groupnames}")
+      #connected
+      .col-sm-12
+        #logour
+          a(href='/logout')  LOGOUT 
       .col-sm-4
         div
           b
             | # of Online Users: 
             span#totalonline
         ul#onlineUser.list-group(style='list-style-type:none;')
+        ul#chatRooms.list-group(style='list-style-type:none;')
       .col-sm-7(style='border:1px solid black;')
         div
-          div#msgs(style='width:100%;float:left;height:220px;overflow: scroll;')
+          #msgs(style='width:100%;float:left;height:220px;overflow: scroll;')
             ul#messages(style='padding-bottom:40px;list-style-type:none;')
         div
-          form(action='' id="msgForm")
+          form#msgForm(action='')
             input#message.form-control(autocomplete='off', placeholder='Type message')
             button Send
-      //div.col-sm-12#chat_tabs(style='position:fixed;bottom:0px;')
-      div.col-sm-12#chat_tabs
+      // div.col-sm-12#chat_tabs(style='position:fixed;bottom:0px;')
+      #chat_tabs.col-sm-12
       #openModal.modal.fade(role='dialog')
         .modal-dialog.modal-lg
           .modal-content
             .modal-body
-
-            

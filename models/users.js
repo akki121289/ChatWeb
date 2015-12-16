@@ -9,9 +9,7 @@ var users = Schema({
 	gender : String,
 	country : String,
 	status: { type: Boolean, default: false },
-	groups : [{
-		groupName : String
-	}]
+	groups : [String]
 });
 
 module.exports = mongoose.model('users', users);

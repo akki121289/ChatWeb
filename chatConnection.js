@@ -1,6 +1,7 @@
 var SocketIO = require('socket.io'),
 	Message = require('./models/message'),
 	PersonalMessage =require('./models/personalMessage'),
+    User =require('./models/users'),
     mongoose = require('mongoose'),
     Schema = mongoose.Schema,
     onlineUsers = {}, // onlineUsers object contains all the connected socket object with unique id of user _id
@@ -31,6 +32,10 @@ function chatHandler(socket){
     // update the number of online user to all connected user 
     socket.emit('online user numbers',(Object.keys(userWithNames)).length);
     socket.broadcast.emit('online user numbers',(Object.keys(userWithNames)).length);
+
+    
+    
+
     socket.on("user join",function(name){
             // we are saving the use _id in the socket object
             socket['uniqueId'] = name._id;
@@ -44,7 +49,14 @@ function chatHandler(socket){
             // for updating the number of online user to all connected user 
             socket.emit('online user numbers',(Object.keys(userWithNames)).length);
             socket.broadcast.emit('online user numbers',(Object.keys(userWithNames)).length);
-    
+            
+            // brijesh --- show groups created by user
+            socket.emit("groups available",name.groupNames);
+            // join and broadcast to the joined room 
+            socket.join('room1');
+            //socket.emit('updateGroupChat', name.username,  'you have connected to room1');
+            //socket.broadcast.to('room1').emit('updateGroupChat',)
+            
     });
     // this is just for display all the old broadcasted messages when any user became online
     Message.find({}).sort('-createdAt').limit(10).exec(function(err, data){
@@ -165,6 +177,13 @@ function chatHandler(socket){
         socket.emit('online user numbers',(Object.keys(userWithNames)).length);
         socket.broadcast.emit('online user numbers',(Object.keys(userWithNames)).length);
     });
+
+    //call when to send group messages
+    socket.on('send Group Messages',function(data,callback){
+        console.log(data);
+        socket.broadcast.to('room1').emit('updateGroupChat', data);
+        callback(false);
+    })
 }
 
 function init(listener){
