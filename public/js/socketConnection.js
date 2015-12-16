@@ -166,31 +166,35 @@ $(document).ready(function(){
             console.log(data.groupName);
             console.log(data.msg);
             if($('#'+data.groupId+'GroupTab').length){
-                  $('#'+data.groupId+'GroupTab').find('.groupMessages').append('<li><div class="col-sm-12"><div class="pChatFrom"> '+data.msg+'</div></div></li>');
-                  //scrollChat($('#'+data._id).find('.showMsgs')[0]);
+                  msg = "<b>" + data.name + "</b>" + ": " + data.msg;
+                  $('#'+data.groupId+'GroupTab').find('.groupMessages').append('<li><div class="col-sm-12"><div class="pChatFrom"> '+msg+'</div></div></li>');
+                  
+                  
             }else{
                   createGroupTab(data.groupName,data.groupId);
             }
+            scrollChat($('#'+data.groupId+'GroupTab').find('.showMsgs')[0]);
             //$("#connected").append(data.name+" "+data.msg+"<br/>");
       });
-
-      /*socket.on('old Group Messages',function(messages){
-            console.log("old Group messages cccc",messages);
-            for(var i =messages.length -1 ; i>= 0; i--){
-                  $('#'+messages[i].groupId+'GroupTab').find('.groupMessages').append('<li><div class="col-sm-12"><div> '+messages[i].msg+'</div></div></li>');
-            }
-      });*/
 
 });
 
 function createGroupTab(groupName,groupId){
       if(! $('#'+groupId+'GroupTab').length){
+            var username = $('#username').val();
             $('#chat_tabs').append("<div class='col-sm-3 closeChatBox' id='"+groupId+"GroupTab'><div class='row chatBoxTitleBar'><div class='panel panel-primary' style='margin-bottom:auto'><div class='panel-heading'>"+groupName+"<ul class='list-inline' style='float:right;'><li><span class='closeBox glyphicon glyphicon-remove' aria-hidden='true'></span></li><li><span class='glyphicon glyphicon-unchecked maximize' aria-hidden='true'></span></li><li><span class='glyphicon glyphicon-minus minimize' aria-hidden='true'></span></li></ul></div></div></div><div class='row minimizeChatBox'><form class='form-inline groupMsgForm' role='form' data-attribute='"+groupName+"' id='"+groupId+"'><div class='showMsgs'> <ul class='groupMessages' style='padding-bottom:40px;'></ul></div><div class='form-group'><input class='form-control groupMessage' autocomplete='off' placeholder='Type message'></div><button class='btn btn-default'>Send</button></form><input class='uploadData' type='file' name='pic' accept='image/* , video/* , audio/*' ></div></div>");      
             socket.emit('groupTab Open',{groupId:groupId},function(messages){
                   console.log("old Group messages cccc",messages);
                   for(var i =messages.length -1 ; i>= 0; i--){
-                        $('#'+messages[i].groupId+'GroupTab').find('.groupMessages').append('<li><div class="col-sm-12"><div> '+messages[i].msg+'</div></div></li>');
+                        msg = "<b>" + messages[i].from + "</b>" + ": " + messages[i].msg;
+                        if(messages[i].from === username){
+                              $('#'+messages[i].groupId+'GroupTab').find('.groupMessages').append('<li><div class="col-sm-12"><div class="pChatTo"> '+msg+'</div></div></li>');      
+                        }
+                        else{
+                              $('#'+messages[i].groupId+'GroupTab').find('.groupMessages').append('<li><div class="col-sm-12"><div class="pChatFrom"> '+msg+'</div></div></li>');      
+                        }
                   }
+                  scrollChat($('#'+groupId+'GroupTab').find('.showMsgs')[0]);
             });
       }  
 
@@ -207,13 +211,29 @@ function createGroupTab(groupName,groupId){
                               throw err;
                         }
                         else{
+                              msg = "<b>" + username + "</b>" + ": " + msg;
                               console.log(currentForm.find('.groupMessages'));
                               currentForm.find('.groupMessages').append('<li ><div class="col-sm-12"><div class="pChatTo" > '+msg+'</div></div></li>');
                         }
+                        scrollChat(currentForm.find('.showMsgs')[0]);
                   }); 
             }
             $(this).find('.groupMessage').val('');
-      });    
+      }); 
+
+      $('.minimize').click(function(){
+            var minBoxHeight = $('.minimizeChatBox').height();
+            $(this).closest('.closeChatBox').find('.minimizeChatBox').hide();
+            $(this).closest('.closeChatBox').css("padding-top",minBoxHeight);
+
+      });
+      $('.maximize').click(function(){
+            $(this).closest('.closeChatBox').css("padding-top","0px");
+            $(this).closest('.closeChatBox').find('.minimizeChatBox').show();
+      });
+      $('.closeBox').click(function(){
+            $(this).closest('.closeChatBox').remove();
+      });   
 }
 
 
