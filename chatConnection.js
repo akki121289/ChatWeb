@@ -51,10 +51,8 @@ function chatHandler(socket){
             socket.emit('online user numbers',(Object.keys(userWithNames)).length);
             socket.broadcast.emit('online user numbers',(Object.keys(userWithNames)).length);
             
-            // brijesh --- show groups created by user
-            getGroups(name._id,socket);
-            // join and broadcast to the joined room 
-            socket.join('room1');
+            // here we are showing groups created by user
+            getGroups(name._id,socket); 
             //socket.emit('updateGroupChat', name.username,  'you have connected to room1');
             
     });
@@ -191,7 +189,7 @@ function chatHandler(socket){
                 callback(true);
             }   
             else {
-                socket.broadcast.to('room1').emit('updateGroupChat', data);
+                socket.broadcast.to(data.groupId).emit('updateGroupChat', data);
                 callback(false);
             }
         });
@@ -199,13 +197,8 @@ function chatHandler(socket){
 
     //call when old group messages are to be fetched
     socket.on('groupTab Open',function(data,callback){
-        console.log(data);
-        console.log("In Group tab open");
-        // call the method to update the status of all messages as 'deliver'
         GroupMessage.find({"groupId" : data.groupId}).sort('-createAt').limit(5).exec(function(err, messages){
-            // To display the old messages of the group
-            console.log("Group messages",messages);
-            //var obj = { messages : messages , uniqueId : data.friendId};
+            // To display the old messages of the group        
             callback(messages);
         });
     });
@@ -283,7 +276,10 @@ function upload(data,socket,type,callback)
 
 function getGroups(userId,socket){
     User.find({"_id" : userId},{"groups":1,"_id":0},function(err,data){
-        socket.emit("groups available",data,function(){
+        socket.emit("groups available",data,function(groupIds){
+            for(var i=0;i<groupIds.length;i++){
+                socket.join(groupIds[i]);
+            }
         });
     });
 }

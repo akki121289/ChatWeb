@@ -34,12 +34,14 @@ $(document).ready(function(){
       socket.emit('user join',{ _id:$_id.val(), userId:$userId.val(), username:$username.val(), groupIds:$groupIds.val() });
       // emit this event to know the groups available for the online user
       socket.on('groups available',function(data,callback){
+            var groupIdsArray = [];
             var html = '';
             for(var i=0;i<data[0].groups.length;i++){
                   html += '<li id="'+data[0].groups[i].groupId+'" class="list-group-item" onclick=createGroupTab("'+data[0].groups[i].groupName+'","'+data[0].groups[i].groupId+'") >' +data[0].groups[i].groupName+ '</li>';
+                  groupIdsArray.push(data[0].groups[i].groupId)
             }
             $chatRooms.html(html);
-            callback();
+            callback(groupIdsArray);
       });
       // updating the list of online user when any user became online
       socket.on('online user',function(user){
