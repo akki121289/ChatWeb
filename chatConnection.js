@@ -79,6 +79,11 @@ function chatHandler(socket){
         upload(data,socket,elementType[0],callback);
     });
 
+    socket.on('user Group upload',function(data,callback){
+        var elementType = data.fileType.split('/');
+        uploadInGroup(data,socket,elementType[0],callback);
+    });
+
 
     socket.on('user image',function(data,callback){
         upload(data,socket,'image',callback);
@@ -228,50 +233,83 @@ function decodeBase64Image(dataString) {
 function upload(data,socket,type,callback)
 {
     var dataReg = 'data:' +data.fileType+ ';base64,'; 
-        var decodedBufferData = (data[type+'Data']).replace(dataReg, "");
-         var path = __dirname + "/data/" + data.fileName;
-        fs.writeFile(path, decodedBufferData,'base64', function (err) {
-            if (err) {
-                console.log('ERROR:: ' + err);
-                throw err;
-            } 
+    var decodedBufferData = (data[type+'Data']).replace(dataReg, "");
+    var path = __dirname + "/data/" + data.fileName;
+    fs.writeFile(path, decodedBufferData,'base64', function (err) {
+        if (err) {
+            console.log('ERROR:: ' + err);
+            throw err;
+        } 
 
-            var personMessageObj = {};
-                personMessageObj.type = type;
-                personMessageObj.from = socket.uniqueId;
-                personMessageObj.to = data.friendId;
-                personMessageObj[type] = '/data/' + data.fileName;
-                personMessageObj.status = 'send';
+        var personMessageObj = {};
+            personMessageObj.type = type;
+            personMessageObj.from = socket.uniqueId;
+            personMessageObj.to = data.friendId;
+            personMessageObj[type] = '/data/' + data.fileName;
+            personMessageObj.status = 'send';
 
-            var personMessage = new PersonalMessage(personMessageObj);
-            //  personMessage.save();
-             personMessage.save(function(err){
-                
-                if(err) {
-                    callback(true ,null);
-                }   
-                // here we checking the user is online  or offline
-                else if (onlineUsers[data.friendId]) {
-                        // here we are sending the message to friend
-                        onlineUsers[data.friendId].emit( type +' from friend', {img:'/data/' + data.fileName, username:userWithNames[socket.uniqueId],  _id:socket.uniqueId}, function(){
-                            // if the message send successfully then change the status
-                            updateMessageStatus(socket.uniqueId, data.friendId, 'deliver', function(err){
-                                if(err) {
-                                    // if the message send but not deliver to the friend yet
-                                    callback(false, {img:'/data/' + data.fileName, status :'send'});
-                                } else {
-                                    // if the message deliver but not seen by friend
-                                    callback(false, {img:'/data/' + data.fileName, status :'deliver'});
-                                }
-                            });
+        var personMessage = new PersonalMessage(personMessageObj);
+        //  personMessage.save();
+         personMessage.save(function(err){
+            
+            if(err) {
+                callback(true,null);
+            }   
+            // here we checking the user is online  or offline
+            else if (onlineUsers[data.friendId]) {
+                    // here we are sending the message to friend
+                    onlineUsers[data.friendId].emit( type +' from friend', {img:'/data/' + data.fileName, username:userWithNames[socket.uniqueId],  _id:socket.uniqueId}, function(){
+                        // if the message send successfully then change the status
+                        updateMessageStatus(socket.uniqueId, data.friendId, 'deliver', function(err){
+                            if(err) {
+                                // if the message send but not deliver to the friend yet
+                                callback(false, {img:'/data/' + data.fileName, status :'send'});
+                            } else {
+                                // if the message deliver but not seen by friend
+                                callback(false, {img:'/data/' + data.fileName, status :'deliver'});
+                            }
                         });
-                } else {
-                    // if the message not save in database the status should be send nut not deliver to the friend
-                    callback(false, {img:'/data/' + data.fileName, status :'send'});
-                }
-            });
-
+                    });
+            } else {
+                // if the message not save in database the status should be send nut not deliver to the friend
+                callback(false, {img:'/data/' + data.fileName, status :'send'});
+            }
         });
+
+    });
+}
+
+function uploadInGroup(data,socket,type,callback){
+    var dataReg = 'data:' +data.fileType+ ';base64,'; 
+    var decodedBufferData = (data[type+'Data']).replace(dataReg, "");
+    var path = __dirname + "/data/" + data.fileName;
+    fs.writeFile(path, decodedBufferData,'base64', function (err) {
+        if (err) {
+            console.log('ERROR:: ' + err);
+            throw err;
+        } 
+
+        var groupMessageObj = {};
+            groupMessageObj.type = type;
+            groupMessageObj.from = data.from;
+            groupMessageObj.groupId = data.groupId;
+            groupMessageObj[type] = '/data/' + data.fileName;
+            groupMessageObj.groupName = data.groupName;
+
+        var groupMessage = new GroupMessage(groupMessageObj);
+        groupMessage.save(function(err){
+            
+            if(err) {
+                callback(true,{img:'/data/' + data.fileName});
+            } 
+            else {
+                socket.broadcast.to(data.groupId).emit('group '+type+' from friend', groupMessage);
+                callback(false,{img:'/data/' + data.fileName});
+            }  
+            
+        });
+
+    });
 }
 
 function getGroups(userId,socket){
