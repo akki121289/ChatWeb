@@ -14,8 +14,10 @@ $(document).ready(function(){
       var $personalMessage = $('.personalMessage');
       var $personalMessages = $('.personalMessages');
       var divmsgs=document.getElementById('msgs');
+
       // connection with socket
       socket = io.connect();
+      
       //on when any user become online new user join
       socket.on('on join',function(users){
             var html = '';
@@ -24,6 +26,17 @@ $(document).ready(function(){
                         html += '<li id="'+key+'userList" class="list-group-item" onclick=CreateTab("'+users[key]+'","'+key+'") >' +users[key]+ '</li>';
             }
             $onlineUser.html(html);
+      });
+
+      socket.on('user appeared online',function(data,group){
+            toastr.options.positionClass = "toast-bottom-right";
+            if(group){
+                  toastr.info(data.username + ' has joined '+ data.groupname);
+            }
+            else{
+                  toastr.info(data.username + ' has appeared online');      
+            }
+            
       });
       // for updating the number of online users in real time 
       socket.on('online user numbers',function(numbers){
@@ -34,14 +47,14 @@ $(document).ready(function(){
       socket.emit('user join',{ _id:$_id.val(), userId:$userId.val(), username:$username.val(), groupIds:$groupIds.val() });
       // emit this event to know the groups available for the online user
       socket.on('groups available',function(data,callback){
-            var groupIdsArray = [];
+            var groupIdsArray = {};
             var html = '';
             for(var i=0;i<data[0].groups.length;i++){
                   html += '<li id="'+data[0].groups[i].groupId+'" class="list-group-item" onclick=createGroupTab("'+data[0].groups[i].groupName+'","'+data[0].groups[i].groupId+'") >' +data[0].groups[i].groupName+ '</li>';
-                  groupIdsArray.push(data[0].groups[i].groupId)
+                  groupIdsArray[data[0].groups[i].groupId] = data[0].groups[i].groupName;
             }
             $chatRooms.html(html);
-            callback(groupIdsArray);
+            callback(groupIdsArray,data[0].username);
       });
       // updating the list of online user when any user became online
       socket.on('online user',function(user){

@@ -9,6 +9,7 @@ var SocketIO = require('socket.io'),
     userWithNames = {}, // userWithNames object contains all connected user name with unique id of user _id
     io,
     fs = require('fs');
+
 // function for update the status of message that can be 'send','deliver' or 'seen'
 function updateMessageStatus(to , from , newStatus, callback){
     console.log(to);
@@ -44,6 +45,7 @@ function chatHandler(socket){
             onlineUsers[name._id] = socket;
             // we are saving the all user name in the object with the key _id of perticular user
             userWithNames[name._id] = name.username;
+            
             // for updating the list of online user when any user became online 
             socket.emit("online user", name);
             socket.broadcast.emit('online user',name);
@@ -51,6 +53,7 @@ function chatHandler(socket){
             socket.emit('online user numbers',(Object.keys(userWithNames)).length);
             socket.broadcast.emit('online user numbers',(Object.keys(userWithNames)).length);
             
+            socket.broadcast.emit('user appeared online',{username : name.username},false);
             // here we are showing groups created by user
             getGroups(name._id,socket); 
             //socket.emit('updateGroupChat', name.username,  'you have connected to room1');
@@ -313,10 +316,12 @@ function uploadInGroup(data,socket,type,callback){
 }
 
 function getGroups(userId,socket){
-    User.find({"_id" : userId},{"groups":1,"_id":0},function(err,data){
-        socket.emit("groups available",data,function(groupIds){
-            for(var i=0;i<groupIds.length;i++){
-                socket.join(groupIds[i]);
+    User.find({"_id" : userId},{ "username":1, "groups":1, "_id":0},function(err,data){
+        socket.emit("groups available",data,function(groupIds,joiner){
+            
+            for(var key in groupIds){
+                socket.join(key);
+                socket.broadcast.to(key).emit('user appeared online', {groupname : groupIds[key],username : joiner },true);
             }
         });
     });
