@@ -9,6 +9,8 @@ html(lang='en')
     script(src='/socket.io/socket.io.js')
     script(src='/public/js/socketConnection.js')
     script(src='/public/js/createtab.js')
+    
+    script(src='/public/js/group.js')
   body
     .container
       h1 #{username}
@@ -27,7 +29,7 @@ html(lang='en')
             span#totalonline
         ul#onlineUser.list-group(style='list-style-type:none;')
         ul#chatRooms.list-group(style='list-style-type:none;')
-      .col-sm-7(style='border:1px solid black;')
+      .col-sm-6(style='border:1px solid black;')
         div
           #msgs(style='width:100%;float:left;height:220px;overflow: scroll;')
             ul#messages(style='padding-bottom:40px;list-style-type:none;')
@@ -36,6 +38,71 @@ html(lang='en')
             input#message.form-control(autocomplete='off', placeholder='Type message')
             button Send
       // div.col-sm-12#chat_tabs(style='position:fixed;bottom:0px;')
+      .col-sm-2
+        nav.nav-sidebar
+          ul.nav.tabs
+            li
+              button.btn.btn-primary.btn-lg(type='button', data-toggle='modal', data-target='#createGroup')
+                | Create Group
+            li
+              button.btn.btn-primary.btn-lg(type='button', data-toggle='modal', data-target='#deleteGroup')
+                | Delete group
+            li
+              button.btn.btn-primary.btn-lg(type='button', data-toggle='modal', data-target='#editGroup')
+                | Edit group
+
+      #createGroup.modal.fade(tabindex='-1', role='dialog', aria-labelledby='myModalLabel')
+        form#msgForm(action='/group/create/db' method="post")
+          .modal-dialog.modal-lg(role='document')
+            .modal-content
+              .modal-header
+                button.close(type='button', data-dismiss='modal', aria-label='Close') 
+                  span(aria-hidden='true') 
+                h4#myModalLabel.modal-title Create Group
+              .modal-body 
+                | Group Name
+                input.form-control(type='text', placeholder='Enter Group Name' name="groupName" autocomplete='off')
+                br
+                //input#createGroupText1.span4(type='text', placeholder='Search cities...', autocomplete='off')
+                .token-div#createGroupToken
+                input#createHiddenInput(type="hidden" value="" name="createHiddenInput")
+                .input-group.stylish-input-group
+                  input#createGroupText1.form-control(type='text', placeholder='Search' name="createGroupText1" autocomplete='off')
+                  span.input-group-addon
+                    span.glyphicon.glyphicon-search
+                alert.alert-block.alert-success
+                ul#createGroupul1.typeahead.dropdownmenu(style="max-height:220px;overflow:auto;display:block;border-width:2px;border-style:hidden solid solid;border-color:#dfdfe6;")
+
+              .modal-footer
+                button.btn.btn-default(type='button', data-dismiss='modal') Close
+                button#createGroupSave.btn.btn-primary(type='submit') Save changes
+
+      #deleteGroup.modal.fade(tabindex='-1', role='dialog', aria-labelledby='myModalLabel')
+        .modal-dialog(role='document')
+          .modal-content
+            .modal-header
+              button.close(type='button', data-dismiss='modal', aria-label='Close')
+                span(aria-hidden='true') 
+              h4#myModalLabel.modal-title Modal title
+            .modal-body
+              | delete Group Modal
+            .modal-footer
+              button.btn.btn-default(type='button', data-dismiss='modal') Close
+              button.btn.btn-primary(type='button') Save changes
+
+      #editGroup.modal.fade(tabindex='-1', role='dialog', aria-labelledby='myModalLabel')
+        .modal-dialog(role='document')
+          .modal-content
+            .modal-header
+              button.close(type='button', data-dismiss='modal', aria-label='Close')
+                span(aria-hidden='true') 
+              h4#myModalLabel.modal-title Modal title
+            .modal-body
+              | Edit Group modal
+            .modal-footer
+              button.btn.btn-default(type='button', data-dismiss='modal') Close
+              button.btn.btn-primary(type='button') Save changes
+
       #chat_tabs.col-sm-12
       #openModal.modal.fade(role='dialog')
         .modal-dialog.modal-lg
