@@ -10,7 +10,8 @@ server.route({
 	    path: '/group/create',
 	    handler: function (req, reply) {
 	    	var re = new RegExp(req.query.createGroupText, 'i');
-	    	Users.find({username:  { $regex: re } },function(error, data){
+	    	var userName = req.session._store.username;
+	    	Users.find( { $and : [ {username: { $regex: re }},{ username: { $ne : userName}}] },function(error, data){
 				if(error){
 					reply("something went wrong");
 				}else{
@@ -31,7 +32,9 @@ server.route({
 	    		var memberObj = { "id" : ele };
 	    		membersArray.push(memberObj);
 	    	})
-	    	
+
+	    	membersArray.push({"id" : req.session._store._id });
+	    	membersIdArray.push(req.session._store._id);
 	    	var userObj = {
 	    		"groupName": req.payload.groupName,
 	    		"creator": {

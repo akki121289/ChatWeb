@@ -4,21 +4,20 @@ html(lang='en')
     title Login Form
     link(rel='stylesheet', href='/public/css/bootstrap.css')
     link(rel='stylesheet', href='/public/css/style1.css')
+    link(rel='stylesheet', href='/public/css/toastr.min.css')
     script(src='http://code.jquery.com/jquery-1.10.2.js')
     script(src='/public/js/bootstrap.js')
     script(src='/socket.io/socket.io.js')
     script(src='/public/js/socketConnection.js')
     script(src='/public/js/createtab.js')
-    
     script(src='/public/js/group.js')
+    script(src='/public/js/toastr.min.js')
   body
     .container
       h1 #{username}
       input#userId(type='hidden', name='target', value="#{email}")
       input#username(type='hidden', name='target', value="#{username}")
       input#_id(type='hidden', name='target', value="#{_id}")
-      input#groupIds(type='hidden', name='target', value="#{groupIds}")
-      #connected
       .col-sm-12
         #logour
           a(href='/logout')  LOGOUT 
@@ -29,14 +28,18 @@ html(lang='en')
             span#totalonline
         ul#onlineUser.list-group(style='list-style-type:none;')
         ul#chatRooms.list-group(style='list-style-type:none;')
-      .col-sm-6(style='border:1px solid black;')
-        div
-          #msgs(style='width:100%;float:left;height:220px;overflow: scroll;')
-            ul#messages(style='padding-bottom:40px;list-style-type:none;')
-        div
-          form#msgForm(action='')
-            input#message.form-control(autocomplete='off', placeholder='Type message')
-            button Send
+      .col-sm-6
+        .panel.panel-primary
+          .panel-heading Group Chat
+          .panel-body
+            div
+              #msgs(style='width:100%;float:left;height:200px;overflow: scroll;')
+                ul#messages(style='padding-bottom:40px;list-style-type:none;')
+            div
+              form#msgForm.form-inline(action='')
+                .form-group
+                  input#message.form-control(autocomplete='off', placeholder='Type message')
+                button.btn.btn-default Send
       // div.col-sm-12#chat_tabs(style='position:fixed;bottom:0px;')
       .col-sm-2
         nav.nav-sidebar
@@ -71,7 +74,7 @@ html(lang='en')
                   span.input-group-addon
                     span.glyphicon.glyphicon-search
                 alert.alert-block.alert-success
-                ul#createGroupul1.typeahead.dropdownmenu(style="max-height:220px;overflow:auto;display:block;border-width:2px;border-style:hidden solid solid;border-color:#dfdfe6;")
+                ul#createGroupul1.typeahead.dropdownmenu(style="max-height:220px;overflow:auto;display:block;border-width:2px;border-style:hidden solid solid;border-color:#dfdfe6;padding:0px")
 
               .modal-footer
                 button.btn.btn-default(type='button', data-dismiss='modal') Close
@@ -85,10 +88,12 @@ html(lang='en')
                 span(aria-hidden='true') 
               h4#myModalLabel.modal-title Modal title
             .modal-body
-              | delete Group Modal
+              | delete Groups 
+              ul 
+                each val,index in groups
+                  li(id= val.groupId)= val.groupName
             .modal-footer
               button.btn.btn-default(type='button', data-dismiss='modal') Close
-              button.btn.btn-primary(type='button') Save changes
 
       #editGroup.modal.fade(tabindex='-1', role='dialog', aria-labelledby='myModalLabel')
         .modal-dialog(role='document')
@@ -98,7 +103,15 @@ html(lang='en')
                 span(aria-hidden='true') 
               h4#myModalLabel.modal-title Modal title
             .modal-body
-              | Edit Group modal
+              | Group Edit
+              input#editHiddenInput(type="hidden" value="" name="editHiddenInput")
+              .input-group.stylish-input-group
+                input#editGroupText.form-control(type='text', placeholder='Search' name="editGroupText" autocomplete='off')
+                span.input-group-addon
+                  span.glyphicon.glyphicon-search
+              alert.alert-block.alert-success
+              ul#editGroupul.typeahead.dropdownmenu(style="max-height:220px;overflow:auto;display:block;border-width:2px;border-style:hidden solid solid;border-color:#dfdfe6;padding:0px")
+
             .modal-footer
               button.btn.btn-default(type='button', data-dismiss='modal') Close
               button.btn.btn-primary(type='button') Save changes

@@ -14,8 +14,10 @@ $(document).ready(function(){
       var $personalMessage = $('.personalMessage');
       var $personalMessages = $('.personalMessages');
       var divmsgs=document.getElementById('msgs');
+
       // connection with socket
       socket = io.connect();
+      
       //on when any user become online new user join
       socket.on('on join',function(users){
             var html = '';
@@ -24,6 +26,17 @@ $(document).ready(function(){
                         html += '<li id="'+key+'userList" class="list-group-item" onclick=CreateTab("'+users[key]+'","'+key+'") >' +users[key]+ '</li>';
             }
             $onlineUser.html(html);
+      });
+
+      socket.on('user appeared online',function(data,group){
+            toastr.options.positionClass = "toast-bottom-right";
+            if(group){
+                  toastr.info(data.username + ' has joined '+ data.groupname);
+            }
+            else{
+                  toastr.info(data.username + ' has appeared online');      
+            }
+            
       });
       // for updating the number of online users in real time 
       socket.on('online user numbers',function(numbers){
@@ -34,14 +47,14 @@ $(document).ready(function(){
       socket.emit('user join',{ _id:$_id.val(), userId:$userId.val(), username:$username.val(), groupIds:$groupIds.val() });
       // emit this event to know the groups available for the online user
       socket.on('groups available',function(data,callback){
-            var groupIdsArray = [];
+            var groupIdsArray = {};
             var html = '';
             for(var i=0;i<data[0].groups.length;i++){
                   html += '<li id="'+data[0].groups[i].groupId+'" class="list-group-item" onclick=createGroupTab("'+data[0].groups[i].groupName+'","'+data[0].groups[i].groupId+'") >' +data[0].groups[i].groupName+ '</li>';
-                  groupIdsArray.push(data[0].groups[i].groupId)
+                  groupIdsArray[data[0].groups[i].groupId] = data[0].groups[i].groupName;
             }
             $chatRooms.html(html);
-            callback(groupIdsArray);
+            callback(groupIdsArray,data[0].username);
       });
       // updating the list of online user when any user became online
       socket.on('online user',function(user){
@@ -163,10 +176,6 @@ $(document).ready(function(){
       });
 
       socket.on('updateGroupChat',function(data){
-            console.log(data.name);
-            console.log(data.groupId);
-            console.log(data.groupName);
-            console.log(data.msg);
             if($('#'+data.groupId+'GroupTab').length){
                   msg = "<b>" + data.name + "</b>" + ": " + data.msg;
                   $('#'+data.groupId+'GroupTab').find('.groupMessages').append('<li><div class="col-sm-12"><div class="pChatFrom"> '+msg+'</div></div></li>');
@@ -176,7 +185,47 @@ $(document).ready(function(){
                   createGroupTab(data.groupName,data.groupId);
             }
             scrollChat($('#'+data.groupId+'GroupTab').find('.showMsgs')[0]);
-            //$("#connected").append(data.name+" "+data.msg+"<br/>");
+      });
+
+      socket.on('group image from friend',function(data){
+            if ($('#'+data.groupId+'GroupTab').length){
+                  $('#'+data.groupId+'GroupTab').find('.groupMessages').append('<li><div class="col-sm-12"><div class="pChatFrom"><img class="showImageModal" data-toggle="modal" data-target="#openModal" src="'+data.image+'" width="150" height="80"></div></div></li>');
+                  scrollChat($('#'+data.groupId+'GroupTab').find('.showMsgs')[0]);
+            }else{
+                  createGroupTab(data.groupName,data.groupId);
+            }
+      });
+
+      socket.on('group video from friend',function(data,callback){
+            if ($('#'+data.groupId+'GroupTab').length){
+                  $('#'+data.groupId+'GroupTab').find('.groupMessages').append('<li><div class="col-sm-12"><div class="pChatFrom" > <video controls style="width:100%;" class="showVideoModal" data-toggle="modal" data-target="#openModal"><source src="'+ data.video +'"></video></div></div></li>');
+                  scrollChat($('#'+data.groupId+'GroupTab').find('.showMsgs')[0]);
+            }else{
+                  createGroupTab(data.groupName,data.groupId);
+            }
+      });
+
+      socket.on('group audio from friend',function(data,callback){
+            if ($('#'+data.groupId+'GroupTab').length){
+                  $('#'+data.groupId+'GroupTab').find('.groupMessages').append('<li><div class="col-sm-12"><div class="pChatFrom" > <audio controls style="width:100%;"><source src="'+ data.audio +'"></audio></div></div></li>');
+                  scrollChat($('#'+data.groupId+'GroupTab').find('.showMsgs')[0]);
+            }else{
+                  createGroupTab(data.groupName,data.groupId);
+            }
+      });
+
+      $('body').on('click','.showImageModal', function() {
+            var imageSource = $(this).attr('src');
+            $('#openModal .modal-body').append('<img id="modalContent" src="'+imageSource+'" class="img-responsive">');
+      });
+
+      $('body').on('click','.showVideoModal', function() {
+            var videoSource = $(this).find('source').attr('src');       
+            $('#openModal .modal-body').append('<div id="modalContent" class="embed-responsive embed-responsive-16by9"><iframe src="'+videoSource+'" class="embed-responsive-item"></iframe></div>');
+      });
+
+      $('#openModal').on('hide.bs.modal', function (e) {
+            $('#modalContent').remove();
       });
 
 });
@@ -184,18 +233,34 @@ $(document).ready(function(){
 function createGroupTab(groupName,groupId){
       if(! $('#'+groupId+'GroupTab').length){
             var username = $('#username').val();
-            $('#chat_tabs').append("<div class='col-sm-3 closeChatBox' id='"+groupId+"GroupTab'><div class='row chatBoxTitleBar'><div class='panel panel-primary' style='margin-bottom:auto'><div class='panel-heading'>"+groupName+"<ul class='list-inline' style='float:right;'><li><span class='closeBox glyphicon glyphicon-remove' aria-hidden='true'></span></li><li><span class='glyphicon glyphicon-unchecked maximize' aria-hidden='true'></span></li><li><span class='glyphicon glyphicon-minus minimize' aria-hidden='true'></span></li></ul></div></div></div><div class='row minimizeChatBox'><form class='form-inline groupMsgForm' role='form' data-attribute='"+groupName+"' id='"+groupId+"'><div class='showMsgs'> <ul class='groupMessages' style='padding-bottom:40px;'></ul></div><div class='form-group'><input class='form-control groupMessage' autocomplete='off' placeholder='Type message'></div><button class='btn btn-default'>Send</button></form><input class='uploadData' type='file' name='pic' accept='image/* , video/* , audio/*' ></div></div>");      
+            $('#chat_tabs').append("<div class='col-sm-3 closeChatBox' id='"+groupId+"GroupTab'><div class='row chatBoxTitleBar'><div class='panel panel-primary' style='margin-bottom:auto'><div class='panel-heading'>"+groupName+"<ul class='list-inline' style='float:right;'><li><span class='closeBox glyphicon glyphicon-remove' aria-hidden='true'></span></li><li><span class='glyphicon glyphicon-unchecked maximize' aria-hidden='true'></span></li><li><span class='glyphicon glyphicon-minus minimize' aria-hidden='true'></span></li></ul></div></div></div><div class='row minimizeChatBox'><form class='form-inline groupMsgForm' role='form' data-attribute='"+groupName+"' id='"+groupId+"'><div class='showMsgs'> <ul class='groupMessages' style='padding-bottom:40px;'></ul></div><div class='form-group'><input class='form-control groupMessage' autocomplete='off' placeholder='Type message'></div><button class='btn btn-default'>Send</button></form><input class='uploadGroupData' type='file' name='pic' accept='image/* , video/* , audio/*' ></div></div>");      
             socket.emit('groupTab Open',{groupId:groupId},function(messages){
-                  console.log("old Group messages cccc",messages);
+                  var html = '';
                   for(var i =messages.length -1 ; i>= 0; i--){
-                        msg = "<b>" + messages[i].from + "</b>" + ": " + messages[i].msg;
                         if(messages[i].from === username){
-                              $('#'+messages[i].groupId+'GroupTab').find('.groupMessages').append('<li><div class="col-sm-12"><div class="pChatTo"> '+msg+'</div></div></li>');      
+                              html += '<li><div class="col-sm-12"><div class="pChatTo"> ';
                         }
                         else{
-                              $('#'+messages[i].groupId+'GroupTab').find('.groupMessages').append('<li><div class="col-sm-12"><div class="pChatFrom"> '+msg+'</div></div></li>');      
+                              html += '<li><div class="col-sm-12"><div class="pChatFrom"> ';
                         }
+                        if(messages[i].type == 'message'){
+                              msg = "<b>" + messages[i].from + "</b>" + ": " + messages[i].msg;
+                              html += msg;  
+                        }
+                        else if(messages[i].type == 'image'){
+                              html += '<img class="showImageModal" data-toggle="modal" data-target="#openModal" src="'+ messages[i][messages[i].type] +'" width="150" height="80"></div>'; 
+                        }
+                        else{
+                              if(messages[i].type == 'video'){
+                                    html += '<'+ messages[i].type +' controls style="width:100%;" class="showVideoModal" data-toggle="modal" data-target="#openModal"><source src="'+ messages[i][messages[i].type] +'"></'+messages[i].type+'></div>'
+                              }
+                              else{
+                                    html += '<'+ messages[i].type +' controls style="width:100%;"><source src="'+ messages[i][messages[i].type] +'"></'+messages[i].type+'></div>'      
+                              }
+                        }
+                        html += '</div></li>';
                   }
+                  $('#'+groupId+'GroupTab').find('.groupMessages').append(html);      
                   scrollChat($('#'+groupId+'GroupTab').find('.showMsgs')[0]);
             });
       }  
@@ -214,7 +279,6 @@ function createGroupTab(groupName,groupId){
                         }
                         else{
                               msg = "<b>" + username + "</b>" + ": " + msg;
-                              console.log(currentForm.find('.groupMessages'));
                               currentForm.find('.groupMessages').append('<li ><div class="col-sm-12"><div class="pChatTo" > '+msg+'</div></div></li>');
                         }
                         scrollChat(currentForm.find('.showMsgs')[0]);
@@ -222,6 +286,15 @@ function createGroupTab(groupName,groupId){
             }
             $(this).find('.groupMessage').val('');
       }); 
+
+      // ===== code for uploading image,video,audio to group messages
+
+      $('.uploadGroupData').unbind( "change");
+
+      $('.uploadGroupData').on('change', function(e){
+            uploadInGroup(e,this);
+      });
+
 
       $('.minimize').click(function(){
             var minBoxHeight = $('.minimizeChatBox').height();
@@ -235,7 +308,8 @@ function createGroupTab(groupName,groupId){
       });
       $('.closeBox').click(function(){
             $(this).closest('.closeChatBox').remove();
-      });   
+      });
+
 }
 
 
@@ -271,7 +345,6 @@ function CreateTab(name, uniqueId)
                   jsonObject = {
                   'imageData': evt.target.result,
                   }
-              console.log("jsonObject",jsonObject);    
             }
               // send a custom socket message to server
               
@@ -320,19 +393,6 @@ function CreateTab(name, uniqueId)
             $(this).closest('.closeChatBox').remove();
       });
 
-      $('body').on('click','.showImageModal', function() {
-            var imageSource = $(this).attr('src');
-            $('#openModal .modal-body').append('<img id="modalContent" src="'+imageSource+'" class="img-responsive">');
-      });
-
-      $('body').on('click','.showVideoModal', function() {
-            var videoSource = $(this).find('source').attr('src');       
-            $('#openModal .modal-body').append('<div id="modalContent" class="embed-responsive embed-responsive-16by9"><iframe src="'+videoSource+'" class="embed-responsive-item"></iframe></div>');
-      });
-
-      $('#openModal').on('hide.bs.modal', function (e) {
-            $('#modalContent').remove();
-      });
 }
 
 function scrollChat(chatWindow){
@@ -340,6 +400,57 @@ function scrollChat(chatWindow){
       if(down>=0){                       
             $(chatWindow).scrollTop(down); 
       }
+}
+
+function uploadInGroup(e,thisObj){
+      var file = e.originalEvent.target.files[0],
+      reader = new FileReader();
+      var elementType = file.type.split('/');
+      var groupId = $(thisObj).closest('.minimizeChatBox').find('.groupMsgForm').attr('id');
+      var groupName = $(thisObj).closest('.minimizeChatBox').find('.groupMsgForm').attr('data-attribute');
+      var from = $('#username').val();
+      var currentForm = $(thisObj);
+      reader.onload = function(evt){
+            var jsonObject = {
+                  'fileName' : file.name,
+                  'fileType' : file.type,
+                  'groupId' : groupId,
+                  'groupName' : groupName,
+                  'from' : from
+            }
+
+            jsonObject[elementType[0]+'Data'] = evt.target.result;
+            socket.emit('user Group upload', jsonObject,function(err,data){
+            
+                  if(elementType[0] == 'image')
+                  {
+                        if(err) {
+                              throw err
+                        } else {
+                              currentForm.closest('.minimizeChatBox').find('.groupMessages').append('<li><div class="col-sm-12"><div class="pChatTo">  <'+elementType[0]+' class="showImageModal" data-toggle="modal" data-target="#openModal" src="'+ data.img +'" width="150" height="80"> </div></div></li>');
+                        }      
+                  }
+                  else if(elementType[0] == 'video'){
+                        if(err) {
+                              throw err
+                        }
+                        else {
+                               currentForm.closest('.minimizeChatBox').find('.groupMessages').append('<li><div class="col-sm-12"><div class="pChatTo"> <'+elementType[0]+' controls style="width:100%;" class="showVideoModal" data-toggle="modal" data-target="#openModal"><source src="'+ data.img +'"></'+elementType[0]+'></div></div></li>');
+                        }
+                  }
+                  else
+                  {
+                        if(err) {
+                              throw err
+                        }
+                        else {
+                               currentForm.closest('.minimizeChatBox').find('.groupMessages').append('<li><div class="col-sm-12"><div class="pChatTo"> <'+elementType[0]+' controls style="width:100%;"><source src="'+ data.img +'"></'+elementType[0]+'></div></div></li>');
+                        }
+                  }
+                  scrollChat(currentForm.closest('.minimizeChatBox').find('.showMsgs')[0]);
+            });
+      };
+      reader.readAsDataURL(file);      
 }
 
 function upload(e,thisObj)
@@ -352,6 +463,7 @@ function upload(e,thisObj)
       console.log("elementType",elementType[0]);
       var friendId = $(thisObj).closest('.minimizeChatBox').find('.personalMsgForm').attr('data-attribute');
       var currentForm = $(thisObj);
+      console.log(currentForm);
       reader.onload = function(evt){
             var jsonObject = {
                   'friendId' : friendId,
@@ -370,13 +482,13 @@ function upload(e,thisObj)
                   if(elementType[0] == 'image')
                   {
                         if(err) {
-                              currentForm.closest('.minimizeChatBox').find('.personalMessages').append('<li><div class="col-sm-12"><div class="deliver pChatTo"> <'+elementType[0]+' src="'+ data.img +'" width="150" height="80"> </div></div></li>');
+                              currentForm.closest('.minimizeChatBox').find('.personalMessages').append('<li><div class="col-sm-12"><div class="deliver pChatTo"> <'+elementType[0]+' class="showImageModal" data-toggle="modal" data-target="#openModal" src="'+ data.img +'" width="150" height="80"> </div></div></li>');
                         }
                         else if(data.status == 'deliver') {
-                              currentForm.closest('.minimizeChatBox').find('.personalMessages').append('<li><div class="col-sm-12"><div class="deliver pChatTo"> <'+elementType[0]+' src="'+ data.img +'" width="150" height="80"> </div></div></li>');
+                              currentForm.closest('.minimizeChatBox').find('.personalMessages').append('<li><div class="col-sm-12"><div class="deliver pChatTo"> <'+elementType[0]+' class="showImageModal" data-toggle="modal" data-target="#openModal" src="'+ data.img +'" width="150" height="80"> </div></div></li>');
                         }
                         else {
-                              currentForm.closest('.minimizeChatBox').find('.personalMessages').append('<li><div class="col-sm-12"><div class="send pChatTo">  <'+elementType[0]+' src="'+ dat.img +'" width="150" height="80"> </div></div></li>');
+                              currentForm.closest('.minimizeChatBox').find('.personalMessages').append('<li><div class="col-sm-12"><div class="send pChatTo">  <'+elementType[0]+' class="showImageModal" data-toggle="modal" data-target="#openModal" src="'+ data.img +'" width="150" height="80"> </div></div></li>');
                         }      
                   }
                   else if(elementType[0] == 'video'){

@@ -32,7 +32,12 @@ module.exports = function(server){
 	    path: '/userlist',
 	    handler: function (request, reply) {
 	    	if(request.session.get('email')){
-	        	reply.view('userlist',{ _id:request.session.get('_id'), email:request.session.get('email'), username:request.session.get('username'),groupIds:request.session.get('groupIds')});
+	    		{
+	    			Users.find({_id : request.session.get('_id')},function(err,userData){
+	    				reply.view('userlist',{ _id:request.session.get('_id'), email:request.session.get('email'), username:request.session.get('username'),groupIds:request.session.get('groupIds'),groups : userData[0].groups });		
+	    			} )
+	    			
+	    		}	        	
 	    	}else{
 	    		reply.redirect('/login');
 	    	}
